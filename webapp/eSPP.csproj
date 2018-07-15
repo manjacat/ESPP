@@ -326,6 +326,11 @@
     <Content Include="bin\Microsoft.Web.Infrastructure.dll" />
     <Content Include="bin\Newtonsoft.Json.dll" />
     <Content Include="bin\Newtonsoft.Json.xml" />
+    <Content Include="bin\NPOI.dll" />
+    <Content Include="bin\NPOI.OOXML.dll" />
+    <Content Include="bin\NPOI.OpenXml4Net.dll" />
+    <Content Include="bin\NPOI.OpenXmlFormats.dll" />
+    <Content Include="bin\NPOI.xml" />
     <Content Include="bin\Oracle.ManagedDataAccess.dll" />
     <Content Include="bin\Oracle.ManagedDataAccess.EntityFramework.dll" />
     <Content Include="bin\Owin.dll" />
