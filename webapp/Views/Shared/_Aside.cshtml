@@ -68,11 +68,11 @@
                     <li class="@Html.RouteIf("ListTransaksiSambilan", "active")">
                         <a href="@Url.Action("ListTransaksiSambilan", "PengurusanKakitanganSambilan")"><i class=""></i> Sejarah Transaksi Sambilan </a>
                     </li>
-                    <li class="@Html.RouteIf("BonusSambilan", "active")">
+                    @*<li class="@Html.RouteIf("BonusSambilan", "active")">
                         <a href="@Url.Action("BonusSambilan", "PengurusanKakitanganSambilan")"><i class=""></i>Pengurusan Bonus Sambilan </a>
-                    </li>
-                    <li class="@Html.RouteIf("BonusSambilan", "active")">
-                        <a href="@Url.Action("UrusBonus", "PengurusanKakitanganSambilan")"><i class=""></i>Khairil Bonus Sambilan </a>
+                    </li>*@
+                    <li class="@Html.RouteIf("UrusBonus", "active")">
+                        <a href="@Url.Action("UrusBonus", "PengurusanKakitanganSambilan")"><i class=""></i>Pengurusan Bonus Sambilan </a>
                     </li>
                     <li class="@Html.RouteIf("ProsesGajiSambilan", "active")">
                         <a href="@Url.Action("ProsesGajiSambilan", "PengurusanKakitanganSambilan")"><i class=""></i>Proses Gaji Sambilan</a>

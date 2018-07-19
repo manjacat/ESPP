@@ -1796,7 +1796,9 @@
     </Compile>
     <Compile Include="Models\AgensiModels.cs" />
     <Compile Include="Models\AgreementModels.cs" />
+    <Compile Include="Models\MonthModel.cs" />
     <Compile Include="Models\PelarasanModels.cs" />
+    <Compile Include="Models\TextFileModel.cs" />
     <Compile Include="Models\TransaksiModels.cs" />
     <Compile Include="Models\AlasanModels.cs" />
     <Compile Include="Models\BonusSambilanModels.cs" />

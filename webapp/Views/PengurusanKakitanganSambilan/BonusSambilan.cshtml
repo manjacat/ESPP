@@ -145,7 +145,10 @@
 			var breakpointDefinition = {
 				tablet: 1024,
 				phone: 480
-			};
+            };
+
+            UpdateInput();
+
 			$('#datatable_tabletools').dataTable({
 				"sDom": "<'dt-toolbar'<'col-xs-12 col-sm-6'f><'col-sm-6 col-xs-6 hidden-xs'T<'muktamad'><'tambah'>>r>" +
 				"t" +
@@ -182,7 +185,28 @@
 				}
 			});
 			$('div.tambah').after('<a name="btn_add" class="btn btn-success Tambah pull-right hidden-mobile" href=@Url.Action("TransaksiSambilan", "PengurusanKakitanganSambilan") ><span style="color:#FFF"><span class="fa fa-plus"></span> Tambah</span></a>');
-		})
+        })
+
+        function UpdateInput() {
+            var bulantahunbekerjadari = $("input[name='bulantahunbekerjadari']");
+            var bulantahunbekerjahingga = $("input[name='bulantahunbekerjahingga']");
+            var bulan = getParameterByName("month");
+            var tahun = getParameterByName("year");
+            if (bulan != null && tahun != null) {
+                bulantahunbekerjadari.val(bulan + "/" + tahun);
+                bulantahunbekerjahingga.val(bulan + "/" + tahun);
+            }
+        }
+
+        function getParameterByName(name, url) {
+            if (!url) url = window.location.href;
+            name = name.replace(/[\[\]]/g, '\\$&');
+            var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+                results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, ' '));
+        }
 
 		$(function () {
 			function pageload() {

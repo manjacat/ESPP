@@ -1,5 +1,5 @@
-﻿<div id="content">
-
+﻿@model eSPP.Models.MonthModel
+<div id="content">
     <div class="row">
         <div class="col-xs-12 col-sm-7 col-md-7 col-lg-4">
             <h1 class="page-title txt-color-blueDark">
@@ -93,108 +93,70 @@
                             <br />
                             <div id="showtable">
                                 <!-- TODO -->
-                                @ViewBag.IniTable
-                                <table id="datatable_tabletools" class="table table-striped table-bordered table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th colspan="6"></th>
-                                            <th colspan="12" style="text-align:center">Gaji Diterima Tahun 2018</th>
-                                            <th colspan="4"></th>
-                                        </tr>
-                                        <tr>
-                                            <th>Nama</th>
-                                            <th>No Pekerja</th>
-                                            <th>No Kad Pengenalan</th>
-                                            <th>No Akaun Bank</th>
-                                            <th>No KWSP</th>
-                                            <th>Tarikh Lantikan</th>
-                                            <th>Jan</th>
-                                            <th>Feb</th>
-                                            <th>Mac</th>
-                                            <th>Apr</th>
-                                            <th>Mei</th>
-                                            <th>Jun</th>
-                                            <th>Jul</th>
-                                            <th>Ogo</th>
-                                            <th>Sep</th>
-                                            <th>Okt</th>
-                                            <th>Nov</th>
-                                            <th>Dis</th>
-                                            <th>0.00</th>
-                                            <th>Gaji Purata (RM)</th>
-                                            <th>Bonus Diterima (RM)</th>
-                                            <th>Catatan</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>
-                                                @Html.ActionLink("LAI KOK SEONG", "bonussambilan")
-                                            </td>
-                                            <td>01595</td>
-                                            <td>
-                                                560513055505
-                                            </td>
-                                            <td>
-                                                114188016367
-                                            </td>
-                                            <td>
-                                                3449301
-                                            </td>
-                                            <td>
-                                                16.05.2017
-                                            </td>
-                                            <td>
-                                                <span class="bulangaji">702.00</span>
-                                            </td>
-                                            <td>
-                                                <span class="bulangaji">702.00</span>
-                                            </td>
-                                            <td>
-                                                <span class="bulangaji">702.00</span>
-                                            </td>
-                                            <td>
-                                                <span class="bulangaji">702.00</span>
-                                            </td>
-                                            <td>
-                                                <span class="bulangaji">702.00</span>
-                                            </td>
-                                            <td>
-                                                <span class="bulangaji">702.00</span>
-                                            </td>
-                                            <td>
-                                                <span class="bulangaji">0</span>
-                                            </td>
-                                            <td>
-                                                <span class="bulangaji">0</span>
-                                            </td>
-                                            <td>
-                                                <span class="bulangaji">0</span>
-                                            </td>
-                                            <td>
-                                                <span class="bulangaji">0</span>
-                                            </td>
-                                            <td>
-                                                <span class="bulangaji">0</span>
-                                            </td>
-                                            <td>
-                                                <span class="bulangaji">0</span>
-                                            </td>
-                                            <td>
-                                                <span>702.00</span>
-                                            </td>
-                                            <td>
-                                                140.40
-                                            </td>
-                                            <td>
-                                                30.80
-                                            </td>
-                                            <td>
-                                                Bayaran yang sepatutnya diterima RM280.80 perlu ditolak sebanyak RM250.00
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                @if (Model != null)
+                                {
+                                    <table id="datatable_tabletools" class="table table-striped table-bordered table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th colspan="12" style="text-align:center">Gaji Diterima Tahun 2018</th>
+                                            </tr>
+                                            <tr>
+                                                <th>Jan</th>
+                                                <th>Feb</th>
+                                                <th>Mac</th>
+                                                <th>Apr</th>
+                                                <th>Mei</th>
+                                                <th>Jun</th>
+                                                <th>Jul</th>
+                                                <th>Ogo</th>
+                                                <th>Sep</th>
+                                                <th>Okt</th>
+                                                <th>Nov</th>
+                                                <th>Dis</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>
+                                                    @Html.ActionLink(Model.Jan, "BonusSambilan", new { month = "01", year = ViewBag.Tahun }, new { @class = "bulangaji" })
+                                                </td>
+                                                <td>
+                                                    @Html.ActionLink(Model.Feb, "BonusSambilan", new { month = "02", year = ViewBag.Tahun }, new { @class = "bulangaji" })
+                                                </td>
+                                                <td>
+                                                    @Html.ActionLink(Model.Mac, "BonusSambilan", new { month = "03", year = ViewBag.Tahun }, new { @class = "bulangaji" })
+                                                </td>
+                                                <td>
+                                                    @Html.ActionLink(Model.Apr, "BonusSambilan", new { month = "04", year = ViewBag.Tahun }, new { @class = "bulangaji" })
+                                                </td>
+                                                <td>
+                                                    @Html.ActionLink(Model.Mei, "BonusSambilan", new { month = "05", year = ViewBag.Tahun }, new { @class = "bulangaji" })
+                                                </td>
+                                                <td>
+                                                    @Html.ActionLink(Model.Jun, "BonusSambilan", new { month = "06", year = ViewBag.Tahun }, new { @class = "bulangaji" })
+                                                </td>
+                                                <td>
+                                                    @Html.ActionLink(Model.Julai, "BonusSambilan", new { month = "07", year = ViewBag.Tahun }, new { @class = "bulangaji" })
+                                                </td>
+                                                <td>
+                                                    @Html.ActionLink(Model.Ogos, "BonusSambilan", new { month = "08", year = ViewBag.Tahun }, new { @class = "bulangaji" })
+                                                </td>
+                                                <td>
+                                                    @Html.ActionLink(Model.Sept, "BonusSambilan", new { month = "09", year = ViewBag.Tahun }, new { @class = "bulangaji" })
+                                                </td>
+                                                <td>
+                                                    @Html.ActionLink(Model.Okt, "BonusSambilan", new { month = 10, year = ViewBag.Tahun }, new { @class = "bulangaji" })
+                                                </td>
+                                                <td>
+                                                    @Html.ActionLink(Model.Nov, "BonusSambilan", new { month = 11, year = ViewBag.Tahun }, new { @class = "bulangaji" })
+                                                </td>
+                                                <td>
+                                                    @Html.ActionLink(Model.Dis, "BonusSambilan", new { month = 12, year = ViewBag.Tahun }, new { @class = "bulangaji" })
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                }
                             </div>
                         </div>
                     </div>
@@ -221,7 +183,27 @@
         $(document).ready(function () {
             JanaTable();
             ColorEmptyBulan();
+            UpdateInput();
+            HideSearch();
         })
+
+        function UpdateInput() {
+            var tahunbekerja = $("input[name='tahunbekerja']");
+            var tahun = getParameterByName("tahunbekerja");
+            if (tahun != null) {
+                tahunbekerja.val(tahun);
+            }
+        }
+
+        function getParameterByName(name, url) {
+            if (!url) url = window.location.href;
+            name = name.replace(/[\[\]]/g, '\\$&');
+            var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+                results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, ' '));
+        }
 
         function ColorEmptyBulan() {
             var bulan = $("[class='bulangaji'");
@@ -231,12 +213,18 @@
             bulan.each(function () {
                 if ($(this).text() == "0") {
                     total++;
-                    console.log("value kosong: " + total);
+                    //console.log("value kosong: " + total);
                     $(this).css("color", shadeColor);
+                    $(this).css("cursor", "none");
                     var parent = $(this).parent();
                     parent.css("background-color", shadeColor);
                 }
             });
+        }
+
+        function HideSearch() {
+            var datatable_tabletools_filter = $("#datatable_tabletools_filter");
+            datatable_tabletools_filter.hide();
         }
 
         function JanaTable() {
