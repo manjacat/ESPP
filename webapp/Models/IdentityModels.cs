@@ -25,7 +25,6 @@ namespace eSPP.Models
     {
         public ApplicationDbContext()
             : base("OracleDbContext", throwIfV1Schema: false)
-
         {
         }
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
@@ -40,6 +39,8 @@ namespace eSPP.Models
         {
             return new ApplicationDbContext();
         }
+
+        public System.Data.Entity.DbSet<eSPP.Models.HR_BONUS_SAMBILAN_DETAIL> HR_BONUS_SAMBILAN_DETAIL { get; set; }
 
         public System.Data.Entity.DbSet<eSPP.Models.UserInfo> UserInfoes { get; set; }
         public System.Data.Entity.DbSet<eSPP.Models.SystemFeature> SystemFeatures { get; set; }
@@ -129,7 +130,10 @@ namespace eSPP.Models
 		public System.Data.Entity.DbSet<eSPP.Models.HR_SEMINAR_LUAR> HR_SEMINAR_LUAR { get; set; }
 		public System.Data.Entity.DbSet<eSPP.Models.HR_SEMINAR_LUAR_DETAIL> HR_SEMINAR_LUAR_DETAIL { get; set; }
 		public System.Data.Entity.DbSet<eSPP.Models.Clobb> CLOBB { get; set; }
-	}
+
+
+
+    }
 	public class MajlisContext : DbContext
     {
         public MajlisContext()

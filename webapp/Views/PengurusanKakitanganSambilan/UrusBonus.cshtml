@@ -1,4 +1,5 @@
-﻿@model eSPP.Models.MonthModel
+﻿@model IEnumerable<eSPP.Models.BonusSambilanMonthModel>
+
 <div id="content">
     <div class="row">
         <div class="col-xs-12 col-sm-7 col-md-7 col-lg-4">
@@ -101,59 +102,29 @@
                                                 <th colspan="12" style="text-align:center">Gaji Diterima Tahun 2018</th>
                                             </tr>
                                             <tr>
-                                                <th>Jan</th>
-                                                <th>Feb</th>
-                                                <th>Mac</th>
-                                                <th>Apr</th>
-                                                <th>Mei</th>
-                                                <th>Jun</th>
-                                                <th>Jul</th>
-                                                <th>Ogo</th>
-                                                <th>Sep</th>
-                                                <th>Okt</th>
-                                                <th>Nov</th>
-                                                <th>Dis</th>
+                                                <th class="col-sm-1">#</th>
+                                                <th class="col-sm-10">Bulan</th>
+                                                <th class="col-sm-1">Tindakan</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr>
-                                                <td>
-                                                    @Html.ActionLink(Model.Jan, "BonusSambilan", new { month = "01", year = ViewBag.Tahun }, new { @class = "bulangaji" })
-                                                </td>
-                                                <td>
-                                                    @Html.ActionLink(Model.Feb, "BonusSambilan", new { month = "02", year = ViewBag.Tahun }, new { @class = "bulangaji" })
-                                                </td>
-                                                <td>
-                                                    @Html.ActionLink(Model.Mac, "BonusSambilan", new { month = "03", year = ViewBag.Tahun }, new { @class = "bulangaji" })
-                                                </td>
-                                                <td>
-                                                    @Html.ActionLink(Model.Apr, "BonusSambilan", new { month = "04", year = ViewBag.Tahun }, new { @class = "bulangaji" })
-                                                </td>
-                                                <td>
-                                                    @Html.ActionLink(Model.Mei, "BonusSambilan", new { month = "05", year = ViewBag.Tahun }, new { @class = "bulangaji" })
-                                                </td>
-                                                <td>
-                                                    @Html.ActionLink(Model.Jun, "BonusSambilan", new { month = "06", year = ViewBag.Tahun }, new { @class = "bulangaji" })
-                                                </td>
-                                                <td>
-                                                    @Html.ActionLink(Model.Julai, "BonusSambilan", new { month = "07", year = ViewBag.Tahun }, new { @class = "bulangaji" })
-                                                </td>
-                                                <td>
-                                                    @Html.ActionLink(Model.Ogos, "BonusSambilan", new { month = "08", year = ViewBag.Tahun }, new { @class = "bulangaji" })
-                                                </td>
-                                                <td>
-                                                    @Html.ActionLink(Model.Sept, "BonusSambilan", new { month = "09", year = ViewBag.Tahun }, new { @class = "bulangaji" })
-                                                </td>
-                                                <td>
-                                                    @Html.ActionLink(Model.Okt, "BonusSambilan", new { month = 10, year = ViewBag.Tahun }, new { @class = "bulangaji" })
-                                                </td>
-                                                <td>
-                                                    @Html.ActionLink(Model.Nov, "BonusSambilan", new { month = 11, year = ViewBag.Tahun }, new { @class = "bulangaji" })
-                                                </td>
-                                                <td>
-                                                    @Html.ActionLink(Model.Dis, "BonusSambilan", new { month = 12, year = ViewBag.Tahun }, new { @class = "bulangaji" })
-                                                </td>
-                                            </tr>
+                                            @foreach (BonusSambilanMonthModel x in Model)
+                                            {
+                                                <tr>
+                                                    <td>
+                                                        @Html.Label(x.Nombor.ToString())
+                                                    </td>
+                                                    <td>
+                                                        @Html.Label(x.MonthName)
+                                                    </td>
+                                                    <td>
+                                                        <a class="btn btn-xs btn-default btn-circle" 
+                                                           href='@Url.Action("BonusSambilanDetail", "KakitanganSambilan", 
+                                                                new { month = x.MonthNumber.ToString("D2"), year = ViewBag.Tahun })' 
+                                                           title="Transaksi Sambilan"><i class="fa fa-money"></i></a>
+                                                    </td>
+                                                </tr>
+                                            }
                                         </tbody>
                                     </table>
                                 }
@@ -182,9 +153,9 @@
     <script type="text/javascript">
         $(document).ready(function () {
             JanaTable();
-            ColorEmptyBulan();
-            UpdateInput();
-            HideSearch();
+            //ColorEmptyBulan();
+            //UpdateInput();
+            //HideSearch();
         })
 
         function UpdateInput() {
@@ -204,7 +175,7 @@
             if (!results[2]) return '';
             return decodeURIComponent(results[2].replace(/\+/g, ' '));
         }
-
+        
         function ColorEmptyBulan() {
             var bulan = $("[class='bulangaji'");
             //alert(bulan.length);

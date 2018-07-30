@@ -27,8 +27,12 @@ namespace eSPP.App_Helpers.ExcelHelper
         }
         
         //row 0-4
-        protected static int SetHeader(IWorkbook workbook, ISheet sheet1)
+        protected static int SetHeader(IWorkbook workbook, ISheet sheet1, int bulan, int tahun)
         {
+            string bulanTahunString = string.Format("{0} {1}", bulan, tahun);
+            DateTime tarikhAkhir = new DateTime(tahun, bulan + 1, 1);
+            tarikhAkhir = tarikhAkhir.AddDays(-1);
+
             ICellStyle alignCenter = AlignCenter(workbook);
             int colWidth = 6;
 
@@ -46,18 +50,17 @@ namespace eSPP.App_Helpers.ExcelHelper
                         break;
                     case (1):
                         nCell.SetCellValue("JADUAL CARUMAN BULANAN");
-                        nCell.SetCellValue("PERTUBUHAN KESELEMATAN SOSIAL");
                         ICell cell8a = nRow.CreateCell(colWidth);
                         cell8a.SetCellValue("8A");
                         break;
                     case (2):
-                        nCell.SetCellValue("UNTUK CARUMAN BULAN OGOS 2017");
+                        nCell.SetCellValue("UNTUK CARUMAN BULAN " + bulanTahunString);
                         break;
                     case (3):
                         nCell.SetCellValue("JUMLAH CARUMAN UNTUK BULAN DI ATAS HENDAKLAH DIBAYAR");
                         break;
                     case (4):
-                        nCell.SetCellValue("TIDAK LEWAT DARIPADA 30/09/2017");
+                        nCell.SetCellValue("TIDAK LEWAT DARIPADA " + string.Format("{0:dd/mm/yyyy}",tarikhAkhir));
                         ICell cellLembaran = nRow.CreateCell(colWidth);
                         cellLembaran.SetCellValue("LEMBARAN: 1");
                         break;
@@ -199,6 +202,7 @@ namespace eSPP.App_Helpers.ExcelHelper
         #region Export Excel
         public static IWorkbook ExportExcel(Extension extension)
         {
+            //testing
             IWorkbook workbook = new XSSFWorkbook();
             if (extension == Extension.xls)
             {
@@ -207,7 +211,7 @@ namespace eSPP.App_Helpers.ExcelHelper
 
             ISheet sheet1 = workbook.CreateSheet("Sheet 1");
             int currentRow;
-            currentRow = SetHeader(workbook, sheet1);
+            currentRow = SetHeader(workbook, sheet1, 3, 2017);
             currentRow = SetBayaran(workbook, sheet1, currentRow + 1);
             currentRow = SetMajikan(workbook, sheet1, currentRow + 2);
             currentRow = SetTableHeader(workbook, sheet1, currentRow + 2);

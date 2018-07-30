@@ -657,7 +657,7 @@ namespace eSPP.Controllers
                 db.Entry(maklumat).State = EntityState.Modified;
                 db.SaveChanges();
 
-                return RedirectToAction("TransaksiSambilan", "PengurusanKakitanganSambilan", new { HR_PEKERJA = agree.HR_PEKERJA, Message = ManageMessageId.BayarTunggakan });
+                return RedirectToAction("Sejarah", "KakitanganSambilan", new { HR_PEKERJA = agree.HR_PEKERJA, Message = ManageMessageId.BayarTunggakan });
             }
             return PartialView("_Tunggakan", agree);
         }
@@ -938,7 +938,8 @@ namespace eSPP.Controllers
                 HR_JAWATAN jawatan = db.HR_JAWATAN.SingleOrDefault(s => s.HR_KOD_JAWATAN == pekerjaan.HR_JAWATAN);
                 var gajibonussehari = pekerjaan.HR_GAJI_POKOK / 23;
 
-                if (transaksisambilandetail.Count != 0 && transaksisambilan.Count != 0)
+                //if (transaksisambilandetail.Count != 0 && transaksisambilan.Count != 0)
+                if (transaksisambilandetail.Count != 0)
                 {
                     HR_MAKLUMAT_PEKERJAAN mpekerjaan = db.HR_MAKLUMAT_PEKERJAAN.Where(s => s.HR_NO_PEKERJA == HR_PEKERJA).SingleOrDefault();
                     List<HR_TRANSAKSI_SAMBILAN_DETAIL> elaunka = db.HR_TRANSAKSI_SAMBILAN_DETAIL.Where(s => s.HR_NO_PEKERJA == HR_PEKERJA && s.HR_BULAN_BEKERJA == bulanbekerja && s.HR_BULAN_DIBAYAR == bulandibayar && s.HR_TAHUN == tahundibayar && s.HR_TAHUN_BEKERJA == tahunbekerja && s.HR_KOD == "E0064" || s.HR_KOD == "E0096" || s.HR_KOD == "E0105" || s.HR_KOD == "E0151").ToList();
@@ -1299,6 +1300,7 @@ namespace eSPP.Controllers
                     kerjaelaun.GAJIBERSIH = gajipokok + sum + sum1 + sum2 - sum3;
                     decimal? gajiper3 = gajipokok / 3;
                     kerjaelaun.GAJIPER3 = gajiper3.Value.ToString("0.00");
+                    kerjaelaun.TUNGGAKANIND = tunggakan.Select(x => x.HR_TUNGGAKAN_IND).FirstOrDefault();
                 }
                 return Json(kerjaelaun, JsonRequestBehavior.AllowGet);
             }
@@ -1881,7 +1883,10 @@ namespace eSPP.Controllers
             {
                 if (Command == "Excel")
                 {
-                    IWorkbook workbook = ExcelHelper.ExportExcel(Extension.xlsx);
+                    int _bulan = Convert.ToInt32(bulan);
+                    int _tahun = Convert.ToInt32(tahun);
+                    IWorkbook workbook = BorangAReport.GetReport(_bulan, _tahun, "BorangA");
+
                     // code to create workbook 
                     using (var exportData = new MemoryStream())
                     {
@@ -2806,57 +2811,36 @@ namespace eSPP.Controllers
             if (tahun > 0)
             {
                 ViewBag.Tahun = tahun;
+                List<BonusSambilanMonthModel> list = new List<BonusSambilanMonthModel>();
+                //MonthModel m = new MonthModel();
 
-                MonthModel m = new MonthModel();
-
+                int counter = 1;
                 for (int i = 1; i <= 12; i++)
                 {
-                    List<HR_TRANSAKSI_SAMBILAN_DETAIL> detail =
-                        db.HR_TRANSAKSI_SAMBILAN_DETAIL.Where
-                        (s => s.HR_KOD == "GAJPS" && s.HR_TAHUN == tahun && s.HR_BULAN_DIBAYAR == i).ToList();
+                    //List<HR_TRANSAKSI_SAMBILAN_DETAIL> detail =
+                    //    db.HR_TRANSAKSI_SAMBILAN_DETAIL.Where
+                    //    (s => s.HR_KOD == "GAJPS" && s.HR_TAHUN == tahun && s.HR_BULAN_DIBAYAR == i).ToList();
                     //detail.Sort((x, y) => x.HR_BULAN_BEKERJA.CompareTo(y.HR_BULAN_BEKERJA));
-                    switch (i)
+
+                    List<HR_BONUS_SAMBILAN_DETAIL> detail =
+                        db.HR_BONUS_SAMBILAN_DETAIL.Where
+                        (s => s.HR_TAHUN_BONUS == tahun
+                        && s.HR_BULAN_BONUS == i).ToList();
+
+
+                    BonusSambilanMonthModel m = new BonusSambilanMonthModel();
+                    m.MonthNumber = i;
+                    m.MonthValue = detail.Count();
+                    
+                    if(m.MonthValue > 0)
                     {
-                        case (1):
-                            m.Jan = detail.Count().ToString();
-                            break;
-                        case (2):
-                            m.Feb = detail.Count().ToString();
-                            break;
-                        case (3):
-                            m.Mac = detail.Count().ToString();
-                            break;
-                        case (4):
-                            m.Apr = detail.Count().ToString();
-                            break;
-                        case (5):
-                            m.Mei = detail.Count().ToString();
-                            break;
-                        case (6):
-                            m.Jun = detail.Count().ToString();
-                            break;
-                        case (7):
-                            m.Julai = detail.Count().ToString();
-                            break;
-                        case (8):
-                            m.Ogos = detail.Count().ToString();
-                            break;
-                        case (9):
-                            m.Sept = detail.Count().ToString();
-                            break;
-                        case (10):
-                            m.Okt = detail.Count().ToString();
-                            break;
-                        case (11):
-                            m.Nov = detail.Count().ToString();
-                            break;
-                        case (12):
-                            m.Dis = detail.Count().ToString();
-                            break;
+                        m.Nombor = counter;
+                        counter++;
+                        list.Add(m);
                     }
                 }
 
-                return View(m);
+                return View(list);
             }
 
             return View();

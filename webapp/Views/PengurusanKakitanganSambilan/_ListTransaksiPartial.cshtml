@@ -48,7 +48,7 @@
 								<div class="btn-group col-12">
 									@if (item.MUKTAMAD == 0)
 									{
-										<a class="btn btn-xs btn-default btn-circle" href='@Url.Action("TransaksiSambilan", "PengurusanKakitanganSambilan", new { HR_PEKERJA = item.HR_NO_PEKERJA, tahunbekerja = item.LIST_HR_TAHUN, bulanbekerja = item.LIST_HR_BULAN_BEKERJA, tahundibayar = item.LIST_HR_TAHUN_DIBAYAR, bulandibayar = item.LIST_HR_BULAN_DIBAYAR })' title="Transaksi Sambilan"><i class="fa fa-money"></i></a>
+										<a class="btn btn-xs btn-default btn-circle" href='@Url.Action("Sejarah", "KakitanganSambilan", new { HR_PEKERJA = item.HR_NO_PEKERJA, tahunbekerja = item.LIST_HR_TAHUN, bulanbekerja = item.LIST_HR_BULAN_BEKERJA, tahundibayar = item.LIST_HR_TAHUN_DIBAYAR, bulandibayar = item.LIST_HR_BULAN_DIBAYAR })' title="Kemaskini"><i class="fa fa-money"></i></a>
 									}
 									else if (item.MUKTAMAD == 1)
 									{
@@ -113,7 +113,7 @@
 				}
 			});
 
-			$('div.tambah').after('<a name="btn_add" class="btn btn-success pull-right hidden-mobile" href=@Url.Action("TransaksiSambilan", "PengurusanKakitanganSambilan") ><span style="color:#FFF"><span class="fa fa-plus"></span> Tambah</span></a>');
+			$('div.tambah').after('<a name="btn_add" class="btn btn-success pull-right hidden-mobile" href=@Url.Action("Sejarah", "KakitanganSambilan") ><span style="color:#FFF"><span class="fa fa-plus"></span> Tambah</span></a>');
 			$('div.muktamad').after('<a name="btn_muktamad" id="btn_muktamad" class="btn btn-warning pull-right hidden-mobile" onclick="MuktamadAll()" ><span style="color:#FFF"><span class="fa fa-plus"></span> Muktamad</span></a>');
 		})
 

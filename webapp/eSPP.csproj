@@ -1681,6 +1681,8 @@
     <Content Include="Views\PengurusanKakitanganSambilan\BonusSambilan.cshtml" />
     <Content Include="Views\PengurusanKakitanganSambilan\_ListTransaksiPartial.cshtml" />
     <Content Include="Views\PengurusanKakitanganSambilan\UrusBonus.cshtml" />
+    <Content Include="Views\KakitanganSambilan\Sejarah.cshtml" />
+    <Content Include="Views\KakitanganSambilan\BonusSambilanDetail.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -1695,6 +1697,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Helpers\DashRouteHandler.cs" />
+    <Compile Include="App_Helpers\ExcelHelper\BorangAReport.cs" />
     <Compile Include="App_Helpers\ExcelHelper\ExcelHelper.cs" />
     <Compile Include="App_Helpers\StringExtensions.cs" />
     <Compile Include="App_Helpers\UserManager.cs" />
@@ -1730,6 +1733,7 @@
     <Compile Include="Controllers\JadualSOCSOController.cs" />
     <Compile Include="Controllers\JawatanController.cs" />
     <Compile Include="Controllers\JenisPeperiksaanController.cs" />
+    <Compile Include="Controllers\KakitanganSambilanController.cs" />
     <Compile Include="Controllers\KategoriElaunController.cs" />
     <Compile Include="Controllers\KategoriLatihanController.cs" />
     <Compile Include="Controllers\Kewangan8Controller.cs" />
@@ -1796,8 +1800,12 @@
     </Compile>
     <Compile Include="Models\AgensiModels.cs" />
     <Compile Include="Models\AgreementModels.cs" />
+    <Compile Include="Models\BonusSambilanDetailModel.cs" />
+    <Compile Include="Models\HR_Bonus_Sambilan_Detail.cs" />
     <Compile Include="Models\MonthModel.cs" />
+    <Compile Include="Models\PageSejarahModel.cs" />
     <Compile Include="Models\PelarasanModels.cs" />
+    <Compile Include="Models\ReportBorangAModel.cs" />
     <Compile Include="Models\TextFileModel.cs" />
     <Compile Include="Models\TransaksiModels.cs" />
     <Compile Include="Models\AlasanModels.cs" />
