@@ -145,14 +145,21 @@ namespace eSPP.Controllers
               message == ManageMessageId.Tambah ? "Data Telah Berjaya Disimpan."
               : message == ManageMessageId.Muktamad ? "Data Anda Telah Muktamad."
               : message == ManageMessageId.Kemaskini ? "Data Telah Berjaya Dikemaskini."
+              : message == ManageMessageId.Error ? "Gagal Kemaskini/Tambah Data."
               : "";
 
+            ViewBag.MinBulan = 0;
+            ViewBag.MaxBulan = 0;
+            ViewBag.MaxTahun = 0;
             List<BonusSambilanDetailModel> list = new List<BonusSambilanDetailModel>();
             try
             {
                 int monthInt = Convert.ToInt32(month);
                 int yearInt = Convert.ToInt32(year);
                 list = BonusSambilanDetailModel.GetBonusSambilanDetailData(monthInt, yearInt);
+                ViewBag.MinBulan = list.Select(x => x.MinBulan).Min();
+                ViewBag.MaxBulan = monthInt;
+                ViewBag.MaxTahun = yearInt;
             }
             catch
             {
@@ -199,6 +206,64 @@ namespace eSPP.Controllers
             }
 
             return RedirectToAction("BonusSambilanDetail", new { month = bulanBonus, year = tahunBonus, message = outputMsg });
+        }
+
+        public ActionResult UpdateMuktamad(string bulanBonus, string tahunBonus, string noPekerja = null)
+        {
+            ManageMessageId outputMsg;
+            try
+            {
+                int month = Convert.ToInt32(bulanBonus);
+                int year = Convert.ToInt32(tahunBonus);
+                HR_BONUS_SAMBILAN_DETAIL.UpdateMuktamad(month, year, noPekerja);
+                outputMsg = ManageMessageId.Muktamad;
+            }
+            catch
+            {
+                outputMsg = ManageMessageId.Error;
+            }
+
+            return RedirectToAction("BonusSambilanDetail", new { month = bulanBonus, year = tahunBonus, message = outputMsg });
+        }
+
+        public ActionResult TambahBonus()
+        {
+            List<BonusSambilanDetailModel> bonus = new List<BonusSambilanDetailModel>();
+            return View(bonus);
+        }
+
+        [HttpPost]
+        public ActionResult TambahBonus(string bulanBekerja, string bulanDibayar, string tahunDibayar, string Command)
+        {
+            if(Command == "Tambah")
+            {
+                //TODO add to HR_BONUS_SAMBILAN_DETAIL
+                ManageMessageId outputMsg = ManageMessageId.Tambah;
+                return RedirectToAction("BonusSambilanDetail",
+                    new { month = bulanDibayar, year = tahunDibayar, message = outputMsg });
+            }
+            else
+            {
+                List<BonusSambilanDetailModel> bonus = new List<BonusSambilanDetailModel>();
+                ViewBag.MinBulan = 0;
+                ViewBag.MaxBulan = 0;
+                ViewBag.MaxTahun = 0;
+                try
+                {
+                    int startMonth = Convert.ToInt32(bulanBekerja);
+                    int month = Convert.ToInt32(bulanDibayar);
+                    int year = Convert.ToInt32(tahunDibayar);
+                    ViewBag.MinBulan = startMonth;
+                    ViewBag.MaxBulan = month;
+                    ViewBag.MaxTahun = year;
+                    bonus = BonusSambilanDetailModel.GetDetailsFromTransaksi(startMonth, month, year);
+                }
+                catch
+                {
+
+                }
+                return View(bonus);
+            }            
         }
     }
 }

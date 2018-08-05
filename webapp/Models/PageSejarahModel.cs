@@ -199,19 +199,35 @@ namespace eSPP.Models
         //Methods
         public static PageSejarahModel Insert(PageSejarahModel agree, string user, string command)
         {
-            if (agree.bulandibayar != 7 && agree.bulanbekerja != 5)
-            {
-                return agree;
-            }
 
             ApplicationDbContext db = new ApplicationDbContext();
             //MajlisContext mc = new MajlisContext();
             List<HR_KWSP> listkwsp = db.HR_KWSP.ToList();
             HR_MAKLUMAT_PEKERJAAN mpekerjaan = db.HR_MAKLUMAT_PEKERJAAN.Where(s => s.HR_NO_PEKERJA == agree.HR_PEKERJA).SingleOrDefault();
-            List<HR_MAKLUMAT_ELAUN_POTONGAN> maklumatelaun = db.HR_MAKLUMAT_ELAUN_POTONGAN.Where(s => s.HR_NO_PEKERJA == agree.HR_PEKERJA && s.HR_KOD_ELAUN_POTONGAN.Contains("E") && DateTime.Now >= s.HR_TARIKH_MULA && DateTime.Now <= s.HR_TARIKH_AKHIR && s.HR_AKTIF_IND == "Y" && s.HR_KOD_ELAUN_POTONGAN != "E0164").ToList();
-            List<HR_MAKLUMAT_ELAUN_POTONGAN> maklumatpotongan1 = db.HR_MAKLUMAT_ELAUN_POTONGAN.Where(s => s.HR_NO_PEKERJA == agree.HR_PEKERJA && s.HR_KOD_ELAUN_POTONGAN.Contains("P") && DateTime.Now >= s.HR_TARIKH_MULA && DateTime.Now <= s.HR_TARIKH_AKHIR && s.HR_AKTIF_IND == "Y" && s.HR_KOD_ELAUN_POTONGAN != "P0015").ToList();
-            HR_MAKLUMAT_ELAUN_POTONGAN maklumatpotongan = db.HR_MAKLUMAT_ELAUN_POTONGAN.SingleOrDefault(s => s.HR_NO_PEKERJA == agree.HR_PEKERJA && s.HR_KOD_ELAUN_POTONGAN.Contains("P") && DateTime.Now >= s.HR_TARIKH_MULA && DateTime.Now <= s.HR_TARIKH_AKHIR && s.HR_AKTIF_IND == "Y" && s.HR_KOD_ELAUN_POTONGAN == "P0015");
-            List<HR_MAKLUMAT_ELAUN_POTONGAN> maklumatcaruman = db.HR_MAKLUMAT_ELAUN_POTONGAN.Where(s => s.HR_NO_PEKERJA == agree.HR_PEKERJA && s.HR_KOD_ELAUN_POTONGAN.Contains("C") && DateTime.Now >= s.HR_TARIKH_MULA && DateTime.Now <= s.HR_TARIKH_AKHIR && s.HR_AKTIF_IND == "Y" && s.HR_KOD_ELAUN_POTONGAN != "C0020").ToList();
+            List<HR_MAKLUMAT_ELAUN_POTONGAN> maklumatelaun = db.HR_MAKLUMAT_ELAUN_POTONGAN
+                .Where(s => s.HR_NO_PEKERJA == agree.HR_PEKERJA
+                && s.HR_KOD_ELAUN_POTONGAN.Contains("E")
+                && DateTime.Now >= s.HR_TARIKH_MULA && DateTime.Now <= s.HR_TARIKH_AKHIR
+                && s.HR_AKTIF_IND == "Y"
+                && s.HR_KOD_ELAUN_POTONGAN != "E0164").ToList();
+            List<HR_MAKLUMAT_ELAUN_POTONGAN> maklumatpotongan1 = db.HR_MAKLUMAT_ELAUN_POTONGAN
+                .Where(s => s.HR_NO_PEKERJA == agree.HR_PEKERJA
+                && s.HR_KOD_ELAUN_POTONGAN.Contains("P")
+                && DateTime.Now >= s.HR_TARIKH_MULA && DateTime.Now <= s.HR_TARIKH_AKHIR
+                && s.HR_AKTIF_IND == "Y"
+                && s.HR_KOD_ELAUN_POTONGAN != "P0015").ToList();
+            HR_MAKLUMAT_ELAUN_POTONGAN maklumatpotongan = db.HR_MAKLUMAT_ELAUN_POTONGAN.SingleOrDefault
+                (s => s.HR_NO_PEKERJA == agree.HR_PEKERJA
+                && s.HR_KOD_ELAUN_POTONGAN.Contains("P")
+                && DateTime.Now >= s.HR_TARIKH_MULA && DateTime.Now <= s.HR_TARIKH_AKHIR
+                && s.HR_AKTIF_IND == "Y"
+                && s.HR_KOD_ELAUN_POTONGAN == "P0015");
+            List<HR_MAKLUMAT_ELAUN_POTONGAN> maklumatcaruman = db.HR_MAKLUMAT_ELAUN_POTONGAN.Where
+                (s => s.HR_NO_PEKERJA == agree.HR_PEKERJA
+                && s.HR_KOD_ELAUN_POTONGAN.Contains("C")
+                && DateTime.Now >= s.HR_TARIKH_MULA && DateTime.Now <= s.HR_TARIKH_AKHIR
+                && s.HR_AKTIF_IND == "Y"
+                && s.HR_KOD_ELAUN_POTONGAN != "C0020").ToList();
             agree.gajipokok = mpekerjaan.HR_GAJI_POKOK != null ? Convert.ToDecimal(mpekerjaan.HR_GAJI_POKOK) : 0;
             var gajisehari = (mpekerjaan.HR_GAJI_POKOK / 23) * agree.jumlahhari;
             decimal gajipokok = gajisehari != null ? Convert.ToDecimal(gajisehari) : 0;
@@ -242,14 +258,6 @@ namespace eSPP.Models
                     TrailLog(emel, role,
                         emel.HR_NAMA_PEKERJA + " Telah mengubah data untuk pekerja " + agree.HR_PEKERJA);
                     break;
-            }
-            try
-            {
-                UpdateSambilanDetail(db, agree);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
             }
             return agree;
         }
@@ -369,7 +377,60 @@ namespace eSPP.Models
             {
                 if (gajipokok >= kwsp.HR_UPAH_DARI && gajipokok <= kwsp.HR_UPAH_HINGGA)
                 {
-                    HR_TRANSAKSI_SAMBILAN sambilan = new HR_TRANSAKSI_SAMBILAN
+                    InsertHRSAMBILAN(db, agree);
+                    InsertMAJIKANKWSP(db, agree, kwsp);
+                    InsertPekerjaKSWP(db, agree, kwsp);
+
+                    if (maklumatpotongan != null)
+                    {
+                        InsertMAKLUMATPOTONGAN(db, agree, maklumatpotongan);
+                    }
+                    InsertELAUNOT(db, agree, gajisehariot1);
+                    InsertGAJIPEKERJA(db, agree);
+                    InsertMAKLUMATELAUN(db, agree, maklumatelaun);
+                }
+            }
+
+            if (agree.tunggakan == "Y")
+            {
+                foreach (var kwsp in listkwsp)
+                {
+                    if (gajipokok >= kwsp.HR_UPAH_DARI && gajipokok <= kwsp.HR_UPAH_HINGGA)
+                    {
+                        InsertHRSAMBILAN(db, agree, true);
+                        InsertMAJIKANKWSP(db, agree, kwsp, true);
+                        InsertPekerjaKSWP(db, agree, kwsp, true);                        
+                       
+                        if (maklumatpotongan != null)
+                        {
+                            InsertMAKLUMATPOTONGAN(db, agree, maklumatpotongan, true);
+                        }
+                        InsertELAUNOT(db, agree, gajisehariot1, true);
+                        InsertGAJIPEKERJA(db, agree, true);
+                        InsertMAKLUMATELAUN(db, agree, maklumatelaun, true);
+                        InsertMAKLUMATCARUMAN(db, agree, maklumatcaruman, true);
+                    }
+                }
+            }
+
+
+        }
+
+        #region Insert Into HR SAMBILAN DETAIL
+
+        private static void InsertHRSAMBILAN(ApplicationDbContext db, PageSejarahModel agree, bool isTunggakan = false)
+        {
+            if (!isTunggakan)
+            {
+                HR_TRANSAKSI_SAMBILAN sambilan = db.HR_TRANSAKSI_SAMBILAN
+                       .Where(s => s.HR_NO_PEKERJA == agree.HR_PEKERJA
+                       && s.HR_BULAN_DIBAYAR == agree.bulandibayar
+                       && s.HR_BULAN_BEKERJA == agree.bulanbekerja
+                       && s.HR_TAHUN == agree.tahundibayar
+                       && s.HR_TAHUN_BEKERJA == agree.tahunbekerja).FirstOrDefault();
+                if (sambilan == null)
+                {
+                    sambilan = new HR_TRANSAKSI_SAMBILAN
                     {
                         HR_NO_PEKERJA = agree.HR_PEKERJA,
                         HR_BULAN_BEKERJA = agree.bulanbekerja,
@@ -379,7 +440,58 @@ namespace eSPP.Models
                     };
                     db.HR_TRANSAKSI_SAMBILAN.Add(sambilan);
                     db.SaveChanges();
-                    HR_TRANSAKSI_SAMBILAN_DETAIL majikankwsp = new HR_TRANSAKSI_SAMBILAN_DETAIL
+                }
+            }
+            else
+            {
+                HR_TRANSAKSI_SAMBILAN sambilan = db.HR_TRANSAKSI_SAMBILAN
+                       .Where(s => s.HR_NO_PEKERJA == agree.HR_PEKERJA
+                       && s.HR_BULAN_DIBAYAR == agree.tunggakanbulandibayar
+                       && s.HR_BULAN_BEKERJA == agree.tunggakanbulanbekerja
+                       && s.HR_TAHUN == agree.tunggakantahundibayar
+                       && s.HR_TAHUN_BEKERJA == agree.tunggakantahunbekerja).FirstOrDefault();
+                if (sambilan == null)
+                {
+                    sambilan = new HR_TRANSAKSI_SAMBILAN
+                    {
+                        HR_NO_PEKERJA = agree.HR_PEKERJA,
+                        HR_BULAN_BEKERJA = agree.tunggakanbulanbekerja,
+                        HR_TAHUN_BEKERJA = agree.tunggakantahunbekerja,
+                        HR_TAHUN = agree.tunggakantahundibayar,
+                        HR_BULAN_DIBAYAR = agree.tunggakanbulandibayar
+                    };
+                    db.HR_TRANSAKSI_SAMBILAN.Add(sambilan);
+                    db.SaveChanges();
+                }
+            }
+
+        }
+
+        private static void InsertMAJIKANKWSP(ApplicationDbContext db, PageSejarahModel agree, HR_KWSP kwsp, bool isTunggakan = false)
+        {
+            if (!isTunggakan)
+            {
+                HR_TRANSAKSI_SAMBILAN_DETAIL majikankwsp = db.HR_TRANSAKSI_SAMBILAN_DETAIL
+                      .Where(s => s.HR_NO_PEKERJA == agree.HR_PEKERJA
+                      && s.HR_BULAN_DIBAYAR == agree.bulandibayar
+                      && s.HR_BULAN_BEKERJA == agree.bulanbekerja
+                      && s.HR_TAHUN == agree.tahundibayar
+                      && s.HR_TAHUN_BEKERJA == agree.tahunbekerja
+                      && s.HR_KOD == "C0020").FirstOrDefault();
+
+                if (majikankwsp != null)
+                {
+                    majikankwsp.HR_JUMLAH = kwsp.HR_CARUMAN_MAJIKAN;
+                    majikankwsp.HR_YDP_LULUS_IND = agree.kelulusanydp;
+                    majikankwsp.HR_KOD_IND = "C";
+                    majikankwsp.HR_TUNGGAKAN_IND = "T";
+                    majikankwsp.HR_MUKTAMAD = 0;
+                    db.Entry(majikankwsp).State = EntityState.Modified;
+                    db.SaveChanges();
+                }
+                else
+                {
+                    majikankwsp = new HR_TRANSAKSI_SAMBILAN_DETAIL
                     {
                         HR_NO_PEKERJA = agree.HR_PEKERJA,
                         HR_BULAN_DIBAYAR = agree.bulandibayar,
@@ -395,7 +507,76 @@ namespace eSPP.Models
                     };
                     db.HR_TRANSAKSI_SAMBILAN_DETAIL.Add(majikankwsp);
                     db.SaveChanges();
-                    HR_TRANSAKSI_SAMBILAN_DETAIL pekerjakwsp = new HR_TRANSAKSI_SAMBILAN_DETAIL
+                }
+            }
+            else
+            {
+                HR_TRANSAKSI_SAMBILAN_DETAIL majikankwsp = db.HR_TRANSAKSI_SAMBILAN_DETAIL
+                      .Where(s => s.HR_NO_PEKERJA == agree.HR_PEKERJA
+                      && s.HR_BULAN_DIBAYAR == agree.tunggakanbulandibayar
+                      && s.HR_BULAN_BEKERJA == agree.tunggakanbulanbekerja
+                      && s.HR_TAHUN == agree.tunggakantahundibayar
+                      && s.HR_TAHUN_BEKERJA == agree.tunggakantahunbekerja
+                      && s.HR_KOD == "C0020").FirstOrDefault();
+
+                if (majikankwsp != null)
+                {
+                    majikankwsp.HR_JUMLAH = kwsp.HR_CARUMAN_MAJIKAN;
+                    majikankwsp.HR_YDP_LULUS_IND = agree.kelulusanydp;
+                    majikankwsp.HR_KOD_IND = "C";
+                    majikankwsp.HR_TUNGGAKAN_IND = "T";
+                    majikankwsp.HR_MUKTAMAD = 0;
+                    db.Entry(majikankwsp).State = EntityState.Modified;
+                    db.SaveChanges();
+                }
+                else
+                {
+                    majikankwsp = new HR_TRANSAKSI_SAMBILAN_DETAIL
+                    {
+                        HR_NO_PEKERJA = agree.HR_PEKERJA,
+                        HR_BULAN_DIBAYAR = agree.tunggakanbulandibayar,
+                        HR_TAHUN = agree.tunggakantahundibayar,
+                        HR_KOD = "C0020",
+                        HR_BULAN_BEKERJA = agree.tunggakanbulanbekerja,
+                        HR_JUMLAH = kwsp.HR_CARUMAN_MAJIKAN,
+                        HR_KOD_IND = "C",
+                        HR_TUNGGAKAN_IND = "T",
+                        HR_TAHUN_BEKERJA = agree.tunggakantahunbekerja,
+                        HR_YDP_LULUS_IND = agree.kelulusanydp,
+                        HR_MUKTAMAD = 0
+                    };
+                    db.HR_TRANSAKSI_SAMBILAN_DETAIL.Add(majikankwsp);
+                    db.SaveChanges();
+                }
+            }
+        }
+
+        private static void InsertPekerjaKSWP(ApplicationDbContext db, PageSejarahModel agree, HR_KWSP kwsp, bool isTunggakan = false)
+        {
+            if (!isTunggakan)
+            {
+                HR_TRANSAKSI_SAMBILAN_DETAIL pekerjakwsp = db.HR_TRANSAKSI_SAMBILAN_DETAIL
+                    .Where(s => s.HR_NO_PEKERJA == agree.HR_PEKERJA
+                    && s.HR_BULAN_DIBAYAR == agree.bulandibayar
+                    && s.HR_BULAN_BEKERJA == agree.bulanbekerja
+                    && s.HR_TAHUN == agree.tahundibayar
+                    && s.HR_TAHUN_BEKERJA == agree.tahunbekerja
+                    && s.HR_KOD == "P0035").FirstOrDefault();
+
+                if (pekerjakwsp != null)
+                {
+                    pekerjakwsp.HR_BULAN_DIBAYAR = agree.bulandibayar;
+                    pekerjakwsp.HR_JUMLAH = kwsp.HR_CARUMAN_PEKERJA;
+                    pekerjakwsp.HR_YDP_LULUS_IND = agree.kelulusanydp;
+                    pekerjakwsp.HR_KOD_IND = "P";
+                    pekerjakwsp.HR_TUNGGAKAN_IND = "T";
+                    pekerjakwsp.HR_MUKTAMAD = 0;
+                    db.Entry(pekerjakwsp).State = EntityState.Modified;
+                    db.SaveChanges();
+                }
+                else
+                {
+                    pekerjakwsp = new HR_TRANSAKSI_SAMBILAN_DETAIL
                     {
                         HR_NO_PEKERJA = agree.HR_PEKERJA,
                         HR_BULAN_DIBAYAR = agree.bulandibayar,
@@ -410,26 +591,162 @@ namespace eSPP.Models
                     };
                     db.HR_TRANSAKSI_SAMBILAN_DETAIL.Add(pekerjakwsp);
                     db.SaveChanges();
-                    if (maklumatpotongan != null)
+                }
+            }
+            else
+            {
+                HR_TRANSAKSI_SAMBILAN_DETAIL pekerjakwsp = db.HR_TRANSAKSI_SAMBILAN_DETAIL
+                   .Where(s => s.HR_NO_PEKERJA == agree.HR_PEKERJA
+                   && s.HR_BULAN_DIBAYAR == agree.tunggakanbulandibayar
+                   && s.HR_BULAN_BEKERJA == agree.tunggakanbulanbekerja
+                   && s.HR_TAHUN == agree.tunggakantahundibayar
+                   && s.HR_TAHUN_BEKERJA == agree.tunggakantahunbekerja
+                   && s.HR_KOD == "P0035").FirstOrDefault();
+
+                if (pekerjakwsp != null)
+                {
+                    pekerjakwsp.HR_JUMLAH = kwsp.HR_CARUMAN_PEKERJA;
+                    pekerjakwsp.HR_YDP_LULUS_IND = agree.kelulusanydp;
+                    pekerjakwsp.HR_KOD_IND = "P";
+                    pekerjakwsp.HR_TUNGGAKAN_IND = "T";
+                    pekerjakwsp.HR_MUKTAMAD = 0;
+                    db.Entry(pekerjakwsp).State = EntityState.Modified;
+                    db.SaveChanges();
+                }
+                else
+                {
+                    pekerjakwsp = new HR_TRANSAKSI_SAMBILAN_DETAIL
                     {
-                        HR_TRANSAKSI_SAMBILAN_DETAIL ksdk = new HR_TRANSAKSI_SAMBILAN_DETAIL
-                        {
-                            HR_NO_PEKERJA = agree.HR_PEKERJA,
-                            HR_BULAN_DIBAYAR = agree.bulandibayar,
-                            HR_TAHUN = agree.tahundibayar,
-                            HR_KOD = maklumatpotongan.HR_KOD_ELAUN_POTONGAN,
-                            HR_BULAN_BEKERJA = agree.bulanbekerja,
-                            HR_JUMLAH = maklumatpotongan.HR_JUMLAH,
-                            HR_KOD_IND = maklumatpotongan.HR_ELAUN_POTONGAN_IND,
-                            HR_TUNGGAKAN_IND = "T",
-                            HR_YDP_LULUS_IND = agree.kelulusanydp,
-                            HR_TAHUN_BEKERJA = agree.tahunbekerja,
-                            HR_MUKTAMAD = 0
-                        };
-                        db.HR_TRANSAKSI_SAMBILAN_DETAIL.Add(ksdk);
-                        db.SaveChanges();
-                    }
-                    HR_TRANSAKSI_SAMBILAN_DETAIL elaunot = new HR_TRANSAKSI_SAMBILAN_DETAIL
+                        HR_NO_PEKERJA = agree.HR_PEKERJA,
+                        HR_BULAN_DIBAYAR = agree.tunggakanbulandibayar,
+                        HR_TAHUN = agree.tunggakantahundibayar,
+                        HR_KOD = "P0035",
+                        HR_BULAN_BEKERJA = agree.tunggakanbulanbekerja,
+                        HR_JUMLAH = kwsp.HR_CARUMAN_PEKERJA,
+                        HR_KOD_IND = "P",
+                        HR_TUNGGAKAN_IND = "T",
+                        HR_TAHUN_BEKERJA = agree.tunggakantahunbekerja,
+                        HR_MUKTAMAD = 0
+                    };
+                    db.HR_TRANSAKSI_SAMBILAN_DETAIL.Add(pekerjakwsp);
+                    db.SaveChanges();
+                }
+            }
+
+        }
+
+        private static void InsertMAKLUMATPOTONGAN(ApplicationDbContext db, PageSejarahModel agree, HR_MAKLUMAT_ELAUN_POTONGAN maklumatpotongan,
+            bool isTunggakan = false)
+        {
+            if (!isTunggakan)
+            {
+
+                HR_TRANSAKSI_SAMBILAN_DETAIL ksdk = db.HR_TRANSAKSI_SAMBILAN_DETAIL
+                                .Where(s => s.HR_NO_PEKERJA == agree.HR_PEKERJA
+                                && s.HR_BULAN_DIBAYAR == agree.bulandibayar
+                                && s.HR_BULAN_BEKERJA == agree.bulanbekerja
+                                && s.HR_TAHUN == agree.tahundibayar
+                                && s.HR_TAHUN_BEKERJA == agree.tahunbekerja
+                                && s.HR_KOD == maklumatpotongan.HR_KOD_ELAUN_POTONGAN
+                                && s.HR_KOD_IND == maklumatpotongan.HR_ELAUN_POTONGAN_IND
+                                && s.HR_TUNGGAKAN_IND == "T").FirstOrDefault();
+
+                if (ksdk != null)
+                {
+                    ksdk.HR_JUMLAH = maklumatpotongan.HR_JUMLAH;
+                    ksdk.HR_YDP_LULUS_IND = agree.kelulusanydp;
+                    db.Entry(ksdk).State = EntityState.Modified;
+                    db.SaveChanges();
+                }
+                else
+                {
+
+                    ksdk = new HR_TRANSAKSI_SAMBILAN_DETAIL
+                    {
+                        HR_NO_PEKERJA = agree.HR_PEKERJA,
+                        HR_BULAN_DIBAYAR = agree.bulandibayar,
+                        HR_TAHUN = agree.tahundibayar,
+                        HR_KOD = maklumatpotongan.HR_KOD_ELAUN_POTONGAN,
+                        HR_BULAN_BEKERJA = agree.bulanbekerja,
+                        HR_JUMLAH = maklumatpotongan.HR_JUMLAH,
+                        HR_KOD_IND = maklumatpotongan.HR_ELAUN_POTONGAN_IND,
+                        HR_TUNGGAKAN_IND = "T",
+                        HR_YDP_LULUS_IND = agree.kelulusanydp,
+                        HR_TAHUN_BEKERJA = agree.tahunbekerja,
+                        HR_MUKTAMAD = 0
+                    };
+                    db.HR_TRANSAKSI_SAMBILAN_DETAIL.Add(ksdk);
+                    db.SaveChanges();
+                }
+            }
+            else
+            {
+                HR_TRANSAKSI_SAMBILAN_DETAIL ksdk = db.HR_TRANSAKSI_SAMBILAN_DETAIL
+                                .Where(s => s.HR_NO_PEKERJA == agree.HR_PEKERJA
+                                && s.HR_BULAN_DIBAYAR == agree.tunggakanbulandibayar
+                                && s.HR_BULAN_BEKERJA == agree.tunggakanbulanbekerja
+                                && s.HR_TAHUN == agree.tunggakantahundibayar
+                                && s.HR_TAHUN_BEKERJA == agree.tunggakantahunbekerja
+                                && s.HR_KOD == maklumatpotongan.HR_KOD_ELAUN_POTONGAN
+                                && s.HR_KOD_IND == maklumatpotongan.HR_ELAUN_POTONGAN_IND
+                                && s.HR_TUNGGAKAN_IND == "T").FirstOrDefault();
+
+                if (ksdk != null)
+                {
+                    ksdk.HR_JUMLAH = maklumatpotongan.HR_JUMLAH;
+                    ksdk.HR_YDP_LULUS_IND = agree.kelulusanydp;
+                    db.Entry(ksdk).State = EntityState.Modified;
+                    db.SaveChanges();
+                }
+                else
+                {
+                    ksdk = new HR_TRANSAKSI_SAMBILAN_DETAIL
+                    {
+                        HR_NO_PEKERJA = agree.HR_PEKERJA,
+                        HR_BULAN_DIBAYAR = agree.tunggakanbulandibayar,
+                        HR_TAHUN = agree.tunggakantahundibayar,
+                        HR_KOD = maklumatpotongan.HR_KOD_ELAUN_POTONGAN,
+                        HR_BULAN_BEKERJA = agree.tunggakanbulanbekerja,
+                        HR_JUMLAH = maklumatpotongan.HR_JUMLAH,
+                        HR_KOD_IND = maklumatpotongan.HR_ELAUN_POTONGAN_IND,
+                        HR_TUNGGAKAN_IND = "T",
+                        HR_YDP_LULUS_IND = agree.kelulusanydp,
+                        HR_TAHUN_BEKERJA = agree.tunggakantahunbekerja,
+                        HR_MUKTAMAD = 0
+                    };
+                    db.HR_TRANSAKSI_SAMBILAN_DETAIL.Add(ksdk);
+                    db.SaveChanges();
+                }
+            }
+
+        }
+
+        private static void InsertELAUNOT(ApplicationDbContext db, PageSejarahModel agree, decimal gajisehariot1,
+            bool isTunggakan = false)
+        {
+            if (!isTunggakan)
+            {
+                HR_TRANSAKSI_SAMBILAN_DETAIL elaunot = db.HR_TRANSAKSI_SAMBILAN_DETAIL
+                     .Where(s => s.HR_NO_PEKERJA == agree.HR_PEKERJA
+                     && s.HR_BULAN_DIBAYAR == agree.bulandibayar
+                     && s.HR_BULAN_BEKERJA == agree.bulanbekerja
+                     && s.HR_TAHUN == agree.tahundibayar
+                     && s.HR_TAHUN_BEKERJA == agree.tahunbekerja
+                     && s.HR_KOD == "E0164").FirstOrDefault();
+                if (elaunot != null)
+                {
+                    elaunot.HR_JAM_HARI = agree.jumlahot;
+                    elaunot.HR_JUMLAH = gajisehariot1;
+                    elaunot.HR_YDP_LULUS_IND = agree.kelulusanydp;
+                    elaunot.HR_KOD_IND = "E";
+                    elaunot.HR_TUNGGAKAN_IND = "T";
+                    elaunot.HR_MUKTAMAD = 0;
+                    db.Entry(elaunot).State = EntityState.Modified;
+                    db.SaveChanges();
+                }
+                else
+                {
+                    elaunot = new HR_TRANSAKSI_SAMBILAN_DETAIL
                     {
                         HR_NO_PEKERJA = agree.HR_PEKERJA,
                         HR_BULAN_DIBAYAR = agree.bulandibayar,
@@ -446,7 +763,76 @@ namespace eSPP.Models
                     };
                     db.HR_TRANSAKSI_SAMBILAN_DETAIL.Add(elaunot);
                     db.SaveChanges();
-                    HR_TRANSAKSI_SAMBILAN_DETAIL gajipekerja = new HR_TRANSAKSI_SAMBILAN_DETAIL
+                }
+            }
+            else
+            {
+                HR_TRANSAKSI_SAMBILAN_DETAIL elaunot = db.HR_TRANSAKSI_SAMBILAN_DETAIL
+                     .Where(s => s.HR_NO_PEKERJA == agree.HR_PEKERJA
+                     && s.HR_BULAN_DIBAYAR == agree.tunggakanbulandibayar
+                     && s.HR_BULAN_BEKERJA == agree.tunggakanbulanbekerja
+                     && s.HR_TAHUN == agree.tunggakantahundibayar
+                     && s.HR_TAHUN_BEKERJA == agree.tunggakantahunbekerja
+                     && s.HR_KOD == "E0164").FirstOrDefault();
+                if (elaunot != null)
+                {
+                    elaunot.HR_JAM_HARI = agree.jumlahot;
+                    elaunot.HR_JUMLAH = gajisehariot1;
+                    elaunot.HR_YDP_LULUS_IND = agree.kelulusanydp;
+                    elaunot.HR_KOD_IND = "E";
+                    elaunot.HR_TUNGGAKAN_IND = "T";
+                    elaunot.HR_MUKTAMAD = 0;
+                    db.Entry(elaunot).State = EntityState.Modified;
+                    db.SaveChanges();
+                }
+                else
+                {
+                    elaunot = new HR_TRANSAKSI_SAMBILAN_DETAIL
+                    {
+                        HR_NO_PEKERJA = agree.HR_PEKERJA,
+                        HR_BULAN_DIBAYAR = agree.tunggakanbulandibayar,
+                        HR_TAHUN = agree.tunggakantahundibayar,
+                        HR_KOD = "E0164",
+                        HR_BULAN_BEKERJA = agree.tunggakanbulanbekerja,
+                        HR_JUMLAH = gajisehariot1,
+                        HR_KOD_IND = "E",
+                        HR_TUNGGAKAN_IND = "T",
+                        HR_JAM_HARI = agree.jumlahot,
+                        HR_YDP_LULUS_IND = agree.kelulusanydp,
+                        HR_TAHUN_BEKERJA = agree.tunggakantahunbekerja,
+                        HR_MUKTAMAD = 0
+                    };
+                    db.HR_TRANSAKSI_SAMBILAN_DETAIL.Add(elaunot);
+                    db.SaveChanges();
+                }
+            }
+          
+        }
+
+        private static void InsertGAJIPEKERJA(ApplicationDbContext db, PageSejarahModel agree, bool isTunggakan = false)
+        {
+            if (!isTunggakan)
+            {
+                HR_TRANSAKSI_SAMBILAN_DETAIL gajipekerja = db.HR_TRANSAKSI_SAMBILAN_DETAIL
+                      .Where(s => s.HR_NO_PEKERJA == agree.HR_PEKERJA
+                      && s.HR_BULAN_DIBAYAR == agree.bulandibayar
+                      && s.HR_BULAN_BEKERJA == agree.bulanbekerja
+                      && s.HR_TAHUN == agree.tahundibayar
+                      && s.HR_TAHUN_BEKERJA == agree.tahunbekerja
+                      && s.HR_KOD == "GAJPS").FirstOrDefault();
+                if (gajipekerja != null)
+                {
+                    gajipekerja.HR_JUMLAH = agree.gajipokok;
+                    gajipekerja.HR_KOD_IND = "G";
+                    gajipekerja.HR_JAM_HARI = agree.jumlahhari;
+                    gajipekerja.HR_TUNGGAKAN_IND = "T";
+                    gajipekerja.HR_MUKTAMAD = 0;
+                    db.Entry(gajipekerja).State = EntityState.Modified;
+                    db.SaveChanges();
+                }
+                else
+                {
+                    gajipekerja = new HR_TRANSAKSI_SAMBILAN_DETAIL
                     {
                         HR_NO_PEKERJA = agree.HR_PEKERJA,
                         HR_BULAN_DIBAYAR = agree.bulandibayar,
@@ -462,9 +848,75 @@ namespace eSPP.Models
                     };
                     db.HR_TRANSAKSI_SAMBILAN_DETAIL.Add(gajipekerja);
                     db.SaveChanges();
-                    foreach (var sum in maklumatelaun)
+                }
+            }
+            else
+            {
+                HR_TRANSAKSI_SAMBILAN_DETAIL gajipekerja = db.HR_TRANSAKSI_SAMBILAN_DETAIL
+                      .Where(s => s.HR_NO_PEKERJA == agree.HR_PEKERJA
+                      && s.HR_BULAN_DIBAYAR == agree.tunggakanbulandibayar
+                      && s.HR_BULAN_BEKERJA == agree.tunggakanbulanbekerja
+                      && s.HR_TAHUN == agree.tunggakantahundibayar
+                      && s.HR_TAHUN_BEKERJA == agree.tunggakantahunbekerja
+                      && s.HR_KOD == "GAJPS").FirstOrDefault();
+                if (gajipekerja != null)
+                {
+                    gajipekerja.HR_JUMLAH = agree.gajipokok;
+                    gajipekerja.HR_KOD_IND = "G";
+                    gajipekerja.HR_JAM_HARI = agree.jumlahhari;
+                    gajipekerja.HR_TUNGGAKAN_IND = "T";
+                    gajipekerja.HR_MUKTAMAD = 0;
+                    db.Entry(gajipekerja).State = EntityState.Modified;
+                    db.SaveChanges();
+                }
+                else
+                {
+                    gajipekerja = new HR_TRANSAKSI_SAMBILAN_DETAIL
                     {
-                        HR_TRANSAKSI_SAMBILAN_DETAIL elaunlain = new HR_TRANSAKSI_SAMBILAN_DETAIL
+                        HR_NO_PEKERJA = agree.HR_PEKERJA,
+                        HR_BULAN_DIBAYAR = agree.tunggakanbulandibayar,
+                        HR_TAHUN = agree.tunggakantahundibayar,
+                        HR_KOD = "GAJPS",
+                        HR_BULAN_BEKERJA = agree.tunggakanbulanbekerja,
+                        HR_JUMLAH = agree.gajipokok,
+                        HR_KOD_IND = "G",
+                        HR_JAM_HARI = agree.jumlahhari,
+                        HR_TUNGGAKAN_IND = "T",
+                        HR_TAHUN_BEKERJA = agree.tunggakantahunbekerja,
+                        HR_MUKTAMAD = 0
+                    };
+                    db.HR_TRANSAKSI_SAMBILAN_DETAIL.Add(gajipekerja);
+                    db.SaveChanges();
+                }
+            }          
+        }
+
+        private static void InsertMAKLUMATELAUN(ApplicationDbContext db, PageSejarahModel agree,
+            List<HR_MAKLUMAT_ELAUN_POTONGAN> maklumatelaun, bool isTunggakan = false)
+        {
+            if (!isTunggakan)
+            {
+                foreach (var sum in maklumatelaun)
+                {
+                    HR_TRANSAKSI_SAMBILAN_DETAIL elaunlain = db.HR_TRANSAKSI_SAMBILAN_DETAIL
+                         .Where(s => s.HR_NO_PEKERJA == agree.HR_PEKERJA
+                        && s.HR_BULAN_DIBAYAR == agree.bulandibayar
+                        && s.HR_BULAN_BEKERJA == agree.bulanbekerja
+                        && s.HR_TAHUN == agree.tahundibayar
+                        && s.HR_TAHUN_BEKERJA == agree.tahunbekerja
+                        && s.HR_KOD == sum.HR_KOD_ELAUN_POTONGAN
+                        && s.HR_KOD_IND == sum.HR_ELAUN_POTONGAN_IND).FirstOrDefault();
+                    if (elaunlain != null)
+                    {
+                        elaunlain.HR_JUMLAH = sum.HR_JUMLAH;
+                        elaunlain.HR_TUNGGAKAN_IND = "T";
+                        elaunlain.HR_MUKTAMAD = 0;
+                        db.Entry(elaunlain).State = EntityState.Modified;
+                        db.SaveChanges();
+                    }
+                    else
+                    {
+                        elaunlain = new HR_TRANSAKSI_SAMBILAN_DETAIL
                         {
                             HR_NO_PEKERJA = agree.HR_PEKERJA,
                             HR_BULAN_DIBAYAR = agree.bulandibayar,
@@ -480,9 +932,78 @@ namespace eSPP.Models
                         db.HR_TRANSAKSI_SAMBILAN_DETAIL.Add(elaunlain);
                         db.SaveChanges();
                     }
-                    foreach (var sum2 in maklumatcaruman)
+                }
+            }
+            else
+            {
+                foreach (var sum in maklumatelaun)
+                {
+                    HR_TRANSAKSI_SAMBILAN_DETAIL elaunlain = db.HR_TRANSAKSI_SAMBILAN_DETAIL
+                         .Where(s => s.HR_NO_PEKERJA == agree.HR_PEKERJA
+                        && s.HR_BULAN_DIBAYAR == agree.tunggakanbulandibayar
+                        && s.HR_BULAN_BEKERJA == agree.tunggakanbulanbekerja
+                        && s.HR_TAHUN == agree.tunggakantahundibayar
+                        && s.HR_TAHUN_BEKERJA == agree.tunggakantahunbekerja
+                        && s.HR_KOD == sum.HR_KOD_ELAUN_POTONGAN
+                        && s.HR_KOD_IND == sum.HR_ELAUN_POTONGAN_IND).FirstOrDefault();
+                    if (elaunlain != null)
                     {
-                        HR_TRANSAKSI_SAMBILAN_DETAIL potonganlain = new HR_TRANSAKSI_SAMBILAN_DETAIL
+                        elaunlain.HR_JUMLAH = sum.HR_JUMLAH;
+                        elaunlain.HR_TUNGGAKAN_IND = "T";
+                        elaunlain.HR_MUKTAMAD = 0;
+                        db.Entry(elaunlain).State = EntityState.Modified;
+                        db.SaveChanges();
+                    }
+                    else
+                    {
+                        elaunlain = new HR_TRANSAKSI_SAMBILAN_DETAIL
+                        {
+                            HR_NO_PEKERJA = agree.HR_PEKERJA,
+                            HR_BULAN_DIBAYAR = agree.tunggakanbulandibayar,
+                            HR_TAHUN = agree.tunggakantahundibayar,
+                            HR_KOD = sum.HR_KOD_ELAUN_POTONGAN,
+                            HR_BULAN_BEKERJA = agree.tunggakanbulanbekerja,
+                            HR_JUMLAH = sum.HR_JUMLAH,
+                            HR_KOD_IND = sum.HR_ELAUN_POTONGAN_IND,
+                            HR_TUNGGAKAN_IND = "T",
+                            HR_TAHUN_BEKERJA = agree.tunggakantahunbekerja,
+                            HR_MUKTAMAD = 0
+                        };
+                        db.HR_TRANSAKSI_SAMBILAN_DETAIL.Add(elaunlain);
+                        db.SaveChanges();
+                    }
+                }
+            }
+            
+        }
+
+        private static void InsertMAKLUMATCARUMAN(ApplicationDbContext db, PageSejarahModel agree, List<HR_MAKLUMAT_ELAUN_POTONGAN> maklumatcaruman,
+            bool isTunggakan = false)
+        {
+            if (!isTunggakan)
+            {
+                foreach (var sum2 in maklumatcaruman)
+                {
+                    HR_TRANSAKSI_SAMBILAN_DETAIL potonganlain = db.HR_TRANSAKSI_SAMBILAN_DETAIL
+                        .Where(s => s.HR_NO_PEKERJA == agree.HR_PEKERJA
+                        && s.HR_BULAN_DIBAYAR == agree.bulandibayar
+                        && s.HR_BULAN_BEKERJA == agree.bulanbekerja
+                        && s.HR_TAHUN == agree.tahundibayar
+                        && s.HR_TAHUN_BEKERJA == agree.tahunbekerja
+                        && s.HR_KOD == sum2.HR_KOD_ELAUN_POTONGAN
+                        && s.HR_KOD_IND == sum2.HR_ELAUN_POTONGAN_IND).FirstOrDefault();
+
+                    if (potonganlain != null)
+                    {
+                        potonganlain.HR_JUMLAH = sum2.HR_JUMLAH;
+                        potonganlain.HR_TUNGGAKAN_IND = "T";
+                        potonganlain.HR_MUKTAMAD = 0;
+                        db.Entry(potonganlain).State = EntityState.Modified;
+                        db.SaveChanges();
+                    }
+                    else
+                    {
+                        potonganlain = new HR_TRANSAKSI_SAMBILAN_DETAIL
                         {
                             HR_NO_PEKERJA = agree.HR_PEKERJA,
                             HR_BULAN_DIBAYAR = agree.bulandibayar,
@@ -500,146 +1021,51 @@ namespace eSPP.Models
                     }
                 }
             }
-
-            if (agree.tunggakan == "Y")
+            else
             {
-                foreach (var kwsp in listkwsp)
+                foreach (var sum2 in maklumatcaruman)
                 {
-                    if (gajipokok >= kwsp.HR_UPAH_DARI && gajipokok <= kwsp.HR_UPAH_HINGGA)
+                    HR_TRANSAKSI_SAMBILAN_DETAIL potonganlain = db.HR_TRANSAKSI_SAMBILAN_DETAIL
+                        .Where(s => s.HR_NO_PEKERJA == agree.HR_PEKERJA
+                        && s.HR_BULAN_DIBAYAR == agree.tunggakanbulandibayar
+                        && s.HR_BULAN_BEKERJA == agree.tunggakanbulanbekerja
+                        && s.HR_TAHUN == agree.tunggakantahundibayar
+                        && s.HR_TAHUN_BEKERJA == agree.tunggakantahunbekerja
+                        && s.HR_KOD == sum2.HR_KOD_ELAUN_POTONGAN
+                        && s.HR_KOD_IND == sum2.HR_ELAUN_POTONGAN_IND).FirstOrDefault();
+
+                    if (potonganlain != null)
                     {
-                        HR_TRANSAKSI_SAMBILAN sambilan = new HR_TRANSAKSI_SAMBILAN
-                        {
-                            HR_NO_PEKERJA = agree.HR_PEKERJA,
-                            HR_BULAN_BEKERJA = agree.tunggakanbulanbekerja,
-                            HR_TAHUN_BEKERJA = agree.tunggakantahunbekerja,
-                            HR_TAHUN = agree.tunggakantahundibayar,
-                            HR_BULAN_DIBAYAR = agree.tunggakantahundibayar
-                        };
-                        db.HR_TRANSAKSI_SAMBILAN.Add(sambilan);
+                        potonganlain.HR_JUMLAH = sum2.HR_JUMLAH;
+                        potonganlain.HR_TUNGGAKAN_IND = "T";
+                        potonganlain.HR_MUKTAMAD = 0;
+                        db.Entry(potonganlain).State = EntityState.Modified;
                         db.SaveChanges();
-                        HR_TRANSAKSI_SAMBILAN_DETAIL majikankwsp = new HR_TRANSAKSI_SAMBILAN_DETAIL
+                    }
+                    else
+                    {
+                        potonganlain = new HR_TRANSAKSI_SAMBILAN_DETAIL
                         {
                             HR_NO_PEKERJA = agree.HR_PEKERJA,
                             HR_BULAN_DIBAYAR = agree.tunggakanbulandibayar,
                             HR_TAHUN = agree.tunggakantahundibayar,
-                            HR_KOD = "C0020",
+                            HR_KOD = sum2.HR_KOD_ELAUN_POTONGAN,
                             HR_BULAN_BEKERJA = agree.tunggakanbulanbekerja,
-                            HR_JUMLAH = kwsp.HR_CARUMAN_MAJIKAN,
-                            HR_KOD_IND = "C",
-                            HR_TUNGGAKAN_IND = "Y",
+                            HR_JUMLAH = sum2.HR_JUMLAH,
+                            HR_KOD_IND = sum2.HR_ELAUN_POTONGAN_IND,
+                            HR_TUNGGAKAN_IND = "T",
                             HR_TAHUN_BEKERJA = agree.tunggakantahunbekerja,
                             HR_MUKTAMAD = 0
                         };
-                        db.HR_TRANSAKSI_SAMBILAN_DETAIL.Add(majikankwsp);
+                        db.HR_TRANSAKSI_SAMBILAN_DETAIL.Add(potonganlain);
                         db.SaveChanges();
-                        HR_TRANSAKSI_SAMBILAN_DETAIL pekerjakwsp = new HR_TRANSAKSI_SAMBILAN_DETAIL
-                        {
-                            HR_NO_PEKERJA = agree.HR_PEKERJA,
-                            HR_BULAN_DIBAYAR = agree.tunggakanbulandibayar,
-                            HR_TAHUN = agree.tunggakantahundibayar,
-                            HR_KOD = "P0035",
-                            HR_BULAN_BEKERJA = agree.tunggakanbulanbekerja,
-                            HR_JUMLAH = kwsp.HR_CARUMAN_PEKERJA,
-                            HR_KOD_IND = "P",
-                            HR_TUNGGAKAN_IND = "Y",
-                            HR_TAHUN_BEKERJA = agree.tunggakantahunbekerja,
-                            HR_MUKTAMAD = 0
-                        };
-                        db.HR_TRANSAKSI_SAMBILAN_DETAIL.Add(pekerjakwsp);
-                        db.SaveChanges();
-                        if (maklumatpotongan != null)
-                        {
-                            HR_TRANSAKSI_SAMBILAN_DETAIL ksdk = new HR_TRANSAKSI_SAMBILAN_DETAIL
-                            {
-                                HR_NO_PEKERJA = agree.HR_PEKERJA,
-                                HR_BULAN_DIBAYAR = agree.tunggakanbulandibayar,
-                                HR_TAHUN = agree.tunggakantahundibayar,
-                                HR_KOD = maklumatpotongan.HR_KOD_ELAUN_POTONGAN,
-                                HR_BULAN_BEKERJA = agree.tunggakanbulanbekerja,
-                                HR_JUMLAH = maklumatpotongan.HR_JUMLAH,
-                                HR_KOD_IND = maklumatpotongan.HR_ELAUN_POTONGAN_IND,
-                                HR_TUNGGAKAN_IND = "Y",
-                                HR_TAHUN_BEKERJA = agree.tahunbekerja,
-                                HR_MUKTAMAD = 0
-                            };
-                            db.HR_TRANSAKSI_SAMBILAN_DETAIL.Add(ksdk);
-                            db.SaveChanges();
-                        }
-                        HR_TRANSAKSI_SAMBILAN_DETAIL elaunot = new HR_TRANSAKSI_SAMBILAN_DETAIL
-                        {
-                            HR_NO_PEKERJA = agree.HR_PEKERJA,
-                            HR_BULAN_DIBAYAR = agree.tunggakanbulandibayar,
-                            HR_TAHUN = agree.tunggakantahundibayar,
-                            HR_KOD = "E0164",
-                            HR_BULAN_BEKERJA = agree.tunggakanbulanbekerja,
-                            HR_JUMLAH = gajisehariot1,
-                            HR_KOD_IND = "E",
-                            HR_TUNGGAKAN_IND = "Y",
-                            HR_JAM_HARI = agree.tunggakanjumlahot,
-                            HR_YDP_LULUS_IND = agree.kelulusanydptunggakan,
-                            HR_TAHUN_BEKERJA = agree.tunggakantahunbekerja,
-                            HR_MUKTAMAD = 0
-                        };
-                        db.HR_TRANSAKSI_SAMBILAN_DETAIL.Add(elaunot);
-                        db.SaveChanges();
-                        HR_TRANSAKSI_SAMBILAN_DETAIL gajipekerja = new HR_TRANSAKSI_SAMBILAN_DETAIL
-                        {
-                            HR_NO_PEKERJA = agree.HR_PEKERJA,
-                            HR_BULAN_DIBAYAR = agree.tunggakanbulandibayar,
-                            HR_TAHUN = agree.tunggakantahundibayar,
-                            HR_KOD = "GAJPS",
-                            HR_BULAN_BEKERJA = agree.tunggakanbulanbekerja,
-                            HR_JUMLAH = gajipokok,
-                            HR_KOD_IND = "G",
-                            HR_JAM_HARI = agree.tunggakanjumlahhari,
-                            HR_TUNGGAKAN_IND = "Y",
-                            HR_TAHUN_BEKERJA = agree.tunggakantahunbekerja,
-                            HR_MUKTAMAD = 0
-                        };
-                        db.HR_TRANSAKSI_SAMBILAN_DETAIL.Add(gajipekerja);
-                        db.SaveChanges();
-                        foreach (var sum in maklumatelaun)
-                        {
-                            HR_TRANSAKSI_SAMBILAN_DETAIL elaunlain = new HR_TRANSAKSI_SAMBILAN_DETAIL
-                            {
-                                HR_NO_PEKERJA = agree.HR_PEKERJA,
-                                HR_BULAN_DIBAYAR = agree.tunggakanbulandibayar,
-                                HR_TAHUN = agree.tahundibayar,
-                                HR_KOD = sum.HR_KOD_ELAUN_POTONGAN,
-                                HR_BULAN_BEKERJA = agree.bulanbekerja,
-                                HR_JUMLAH = sum.HR_JUMLAH,
-                                HR_KOD_IND = sum.HR_ELAUN_POTONGAN_IND,
-                                HR_TUNGGAKAN_IND = "Y",
-                                HR_TAHUN_BEKERJA = agree.tunggakantahunbekerja,
-                                HR_MUKTAMAD = 0
-                            };
-                            db.HR_TRANSAKSI_SAMBILAN_DETAIL.Add(elaunlain);
-                            db.SaveChanges();
-                        }
-                        foreach (var sum2 in maklumatcaruman)
-                        {
-                            HR_TRANSAKSI_SAMBILAN_DETAIL potonganlain = new HR_TRANSAKSI_SAMBILAN_DETAIL
-                            {
-                                HR_NO_PEKERJA = agree.HR_PEKERJA,
-                                HR_BULAN_DIBAYAR = agree.tunggakanbulandibayar,
-                                HR_TAHUN = agree.tunggakantahundibayar,
-                                HR_KOD = sum2.HR_KOD_ELAUN_POTONGAN,
-                                HR_BULAN_BEKERJA = agree.tunggakanbulanbekerja,
-                                HR_JUMLAH = sum2.HR_JUMLAH,
-                                HR_KOD_IND = sum2.HR_ELAUN_POTONGAN_IND,
-                                HR_TUNGGAKAN_IND = "Y",
-                                HR_TAHUN_BEKERJA = agree.tunggakantahunbekerja,
-                                HR_MUKTAMAD = 0
-                            };
-                            db.HR_TRANSAKSI_SAMBILAN_DETAIL.Add(potonganlain);
-                            db.SaveChanges();
-                        }
                     }
                 }
-            }
-
-
+            }            
         }
+
+        #endregion
+
 
         private static void UpdateSambilanDetail(ApplicationDbContext db, PageSejarahModel agree)
         {

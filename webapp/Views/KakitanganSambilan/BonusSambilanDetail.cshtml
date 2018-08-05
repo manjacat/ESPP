@@ -54,7 +54,21 @@
                         ×
                     </button>
                     <i class="fa-fw fa fa-check"></i>
-                    <strong>Berjaya</strong> @ViewBag.StatusMessage <strong>@ViewBag.emel</strong>
+                    <strong>Muktamad</strong> @ViewBag.StatusMessage <strong>@ViewBag.emel</strong>
+                </div>
+            </article>
+        </div>
+    }
+    else if (ViewBag.StatusMessage == "Gagal Kemaskini/Tambah Data.")
+    {
+        <div class="row">
+            <article class="col-sm-12">
+                <div class="alert bg-danger fade in">
+                    <button class="close" data-dismiss="alert">
+                        ×
+                    </button>
+                    <i class="fa-fw fa fa-check"></i>
+                    <strong>Error</strong> @ViewBag.StatusMessage <strong>@ViewBag.emel</strong>
                 </div>
             </article>
         </div>
@@ -100,7 +114,8 @@
                         <div class="widget-body">
 
                             <div class="row">
-
+                                <input type="hidden" name="maxBulan" value="@ViewBag.MaxBulan" />
+                                <input type="hidden" name="maxTahun" value="@ViewBag.MaxTahun" />
                             </div>
                             <br />
                             <div id="showtable">
@@ -116,18 +131,17 @@
                                                 <th>No Akaun Bank</th>
                                                 <th>No KWSP</th>
                                                 <th>Tarikh Lantikan</th>
-                                                <th>Jan</th>
-                                                <th>Feb</th>
-                                                <th>Mac</th>
-                                                <th>Apr</th>
-                                                <th>Mei</th>
-                                                <th>Jun</th>
-                                                <th>Jul</th>
-                                                <th>Ogo</th>
-                                                <th>Sept</th>
-                                                <th>Okt</th>
-                                                <th>Nov</th>
-                                                <th>Dis</th>
+                                                @for (int m = ViewBag.MinBulan; m < ViewBag.MaxBulan; m++)
+                                                {
+                                                    BonusSambilanMonthModel monthModel =
+                                                        new BonusSambilanMonthModel
+                                                        {
+                                                            MonthNumber = m,
+                                                            Nombor = m,
+                                                            MonthValue = 0
+                                                        };
+                                                    <th>@monthModel.MonthName</th>
+                                                }
                                                 <th>Jumlah</th>
                                                 <th>Purata</th>
                                                 <th>Bonus</th>
@@ -145,48 +159,100 @@
                                                     <td>@x.NoAkaunBank</td>
                                                     <td>@x.NoKWSP</td>
                                                     <td>@x.TarikhLantikanString</td>
-                                                    <td>@x.Jan</td>
-                                                    <td>@x.Feb</td>
-                                                    <td>@x.Mac</td>
-                                                    <td>@x.April</td>
-                                                    <td>@x.Mei</td>
-                                                    <td>@x.Jun</td>
-                                                    <td>@x.Julai</td>
-                                                    <td>@x.Ogos</td>
-                                                    <td>@x.September</td>
-                                                    <td>@x.Oktober</td>
-                                                    <td>@x.November</td>
-                                                    <td>@x.Disember</td>
+                                                    @for (int m = ViewBag.MinBulan; m < ViewBag.MaxBulan; m++)
+                                                    {
+                                                        BonusSambilanMonthModel monthModel =
+                                                            new BonusSambilanMonthModel
+                                                            {
+                                                                MonthNumber = m,
+                                                                Nombor = m
+                                                            };
+                                                        switch (monthModel.MonthNumber)
+                                                        {
+                                                            case (1):
+                                                                <td>@x.Jan</td>
+                                                                break;
+                                                            case (2):
+                                                                <td>@x.Feb</td>
+                                                                break;
+                                                            case (3):
+                                                                <td>@x.Mac</td>
+                                                                break;
+                                                            case (4):
+                                                                <td>@x.April</td>
+                                                                break;
+                                                            case (5):
+                                                                <td>@x.Mei</td>
+                                                                break;
+                                                            case (6):
+                                                                <td>@x.Jun</td>
+                                                                break;
+                                                            case (7):
+                                                                <td>@x.Julai</td>
+                                                                break;
+                                                            case (8):
+                                                                <td>@x.Ogos</td>
+                                                                break;
+                                                            case (9):
+                                                                <td>@x.September</td>
+                                                                break;
+                                                            case (10):
+                                                                <td>@x.Oktober</td>
+                                                                break;
+                                                            case (11):
+                                                                <td>@x.November</td>
+                                                                break;
+                                                            case (12):
+                                                                <td>@x.Disember</td>
+                                                                break;
+                                                        }
+                                                    }
                                                     <td>@x.JumlahGaji</td>
                                                     <td>@x.GajiPurata</td>
                                                     <td>
-                                                        <!-- bonus diterima -->
-                                                        <input type="button" class="btn btn-default" name="btnBonus"
-                                                               value="@x.BonusDiterima"
+                                                        @if (x.IsMuktamad)
+                                                        {
+                                                            <span>@x.BonusDiterima</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <!-- bonus diterima -->
+                                                            <input type="button" class="btn btn-default" name="btnBonus"
+                                                                   value="@x.BonusDiterima"
+                                                                   data-month="@x.BulanBonus.ToString("D2")"
+                                                                   data-year="@x.TahunBonus.ToString()"
+                                                                   data-pekerja="@x.NoPekerja" />
+                                                        }
+                                                    </td>
+                                                    <td>
+                                                        @if (x.IsMuktamad)
+                                                        {
+                                                            <span>@x.Catatan</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <!-- catatan-->
+                                                            <a name="btnCatatan"
+                                                               href='#'
                                                                data-month="@x.BulanBonus.ToString("D2")"
                                                                data-year="@x.TahunBonus.ToString()"
-                                                               data-pekerja="@x.NoPekerja" />
-
+                                                               data-pekerja="@x.NoPekerja"
+                                                               data-catatan="@x.Catatan"
+                                                               title="Catatan">@x.Catatan</a>
+                                                        }
                                                     </td>
                                                     <td>
-                                                        <!-- catatan-->
-                                                        <a name="btnCatatan" class="btn btn-xs btn-default btn-circle"
-                                                           href='#'
-                                                           data-month="@x.BulanBonus.ToString("D2")"
-                                                           data-year="@x.TahunBonus.ToString()"
-                                                           data-pekerja="@x.NoPekerja"
-                                                           data-catatan="@x.Catatan"
-                                                           title="Catatan"><i class="fa fa-money"></i></a>
-                                                    </td>
-                                                    <td>
-                                                        if(@x.IsMuktamad)
+                                                        @if (x.IsMuktamad)
                                                         {
                                                             <button class="btn btn-xs btn-default btn-circle" disabled title="Transaksi Sambilan"><i class="fa fa-money"></i></button>
                                                         }
                                                         else
                                                         {
-                                                            <a class="btn btn-xs btn-default btn-circle"
-                                                               href='#' title="Muktamad">
+                                                            <a class="btn btn-xs btn-default btn-circle" title="Muktamad"
+                                                               href='@Url.Action("UpdateMuktamad", "KakitanganSambilan",
+                                                        new { noPekerja = x.NoPekerja,
+                                                            tahunBonus = x.TahunBonus,
+                                                            bulanBonus = x.BulanBonus})'>
                                                                 <i class="fa fa-money"></i>
                                                             </a>
                                                         }
@@ -292,16 +358,16 @@
         }
 
         function MuktamadAll() {
-            //debugger;
-            alert('Muktamad All');
+            //alert('maxbulan = ' + $("input[name='maxBulan']").length);
+            //alert('maxTahun = ' + $("input[name='maxTahun']").length);
             //$.ajax({
-            //    url: "../../PengurusanKakitanganSambilan/MuktamadAll",
-            //    data: { "bulantahundari": $("input[name='bulantahunbekerja']").val(), "bulantahunsehingga": $("input[name='bulantahundibayar']").val() },
+            //    url: "../../KakitanganSambilan/UpdateMuktamad",
+            //    data: { "noPekerja": "123456", "bulanbekerja": $("input[name='maxBulan']").val(), "tahunbekerja": $("input[name='maxTahun']").val()  },
             //    contentType: "application/json; charset=utf-8",
             //    type: 'GET',
-            //    success: function (data) {
-            //        $("#showtable").html(data)
-            //    }
+            //    //success: function (data) {
+            //    //    $("#showtable").html(data)
+            //    //}
             //})
         }
 
@@ -350,8 +416,16 @@
                     responsiveHelper_datatable_tabletools.respond();
                 }
             });
-            //$('div.tambah').after('<a name="btn_add" class="btn btn-success Tambah pull-right hidden-mobile" href="#"><span style="color:#FFF"><span class="fa fa-plus"></span> Tambah</span></a>');
-            $('div.muktamad').after('<a name="btn_muktamad" id="btn_muktamad" class="btn btn-warning pull-right hidden-mobile" onclick="MuktamadAll()" ><span style="color:#FFF"><span class="fa fa-plus"></span> Muktamad</span></a>');
+            $('div.tambah').after('<a name="btn_add" class="btn btn-success Tambah pull-right hidden-mobile" '
+                + 'href="../../KakitanganSambilan/TambahBonus">'
+                + '<span style="color:#FFF"><span class="fa fa-plus"></span> Tambah</span></a>');
+            var maxBulan = $("input[name='maxBulan']").val();
+            var maxTahun = $("input[name='maxTahun']").val();
+            $('div.muktamad').after('<a name="btn_muktamad" id="btn_muktamad" class="btn btn-warning pull-right hidden-mobile" '
+                + 'href="../../KakitanganSambilan/UpdateMuktamad?'
+                + '&bulanBonus=' + maxBulan
+                + '&tahunBonus=' + maxTahun + '">'
+                + '<span style="color:#FFF"><span class="fa fa-plus"></span> Muktamad</span></a>');
         }
     </script>
 }

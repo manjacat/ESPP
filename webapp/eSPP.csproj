@@ -1683,6 +1683,7 @@
     <Content Include="Views\PengurusanKakitanganSambilan\UrusBonus.cshtml" />
     <Content Include="Views\KakitanganSambilan\Sejarah.cshtml" />
     <Content Include="Views\KakitanganSambilan\BonusSambilanDetail.cshtml" />
+    <Content Include="Views\KakitanganSambilan\TambahBonus.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

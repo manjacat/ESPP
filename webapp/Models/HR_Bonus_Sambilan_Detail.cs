@@ -43,10 +43,13 @@ namespace eSPP.Models
         public Nullable<decimal> HR_GAJI_PURATA { get; set; }
         public Nullable<decimal> HR_BONUS_DITERIMA { get; set; }
 
+        public int HR_BULAN_START { get; set; }
+
         [MaxLength(1000)]
         public string HR_CATATAN { get; set; }
         public int HR_MUKTAMAD { get; set; }
 
+        #region testing
         public static void TestInsert()
         {
             ApplicationDbContext db = new ApplicationDbContext();
@@ -106,6 +109,8 @@ namespace eSPP.Models
             }
         }
 
+        #endregion
+
         public static List<HR_BONUS_SAMBILAN_DETAIL> GetBonusSambilanDetailData(int month, int year)
         {
             ApplicationDbContext db = new ApplicationDbContext();
@@ -140,6 +145,34 @@ namespace eSPP.Models
             if (det != null)
             {
                 det.HR_CATATAN = catatan;
+                db.Entry(det).State = EntityState.Modified;
+                db.SaveChanges();
+            }
+        }
+
+        public static void UpdateMuktamad(int month, int year, string noPekerja)
+        {
+            ApplicationDbContext db = new ApplicationDbContext();
+            if (string.IsNullOrEmpty(noPekerja))
+            {
+                List<HR_BONUS_SAMBILAN_DETAIL> listd;
+                listd = db.HR_BONUS_SAMBILAN_DETAIL
+                    .Where(x => x.HR_BULAN_BONUS == month
+                    && x.HR_TAHUN_BONUS == year).ToList();
+                foreach (HR_BONUS_SAMBILAN_DETAIL det in listd)
+                {
+                    det.HR_MUKTAMAD = 1;
+                    db.Entry(det).State = EntityState.Modified;
+                    db.SaveChanges();
+                }
+            }
+            else
+            {
+                HR_BONUS_SAMBILAN_DETAIL det = db.HR_BONUS_SAMBILAN_DETAIL
+                    .Where(x => x.HR_BULAN_BONUS == month
+                    && x.HR_TAHUN_BONUS == year
+                    && x.HR_NO_PEKERJA == noPekerja).FirstOrDefault();
+                det.HR_MUKTAMAD = 1;
                 db.Entry(det).State = EntityState.Modified;
                 db.SaveChanges();
             }

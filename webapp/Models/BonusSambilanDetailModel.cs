@@ -19,7 +19,7 @@ namespace eSPP.Models
         {
             get
             {
-                if(TarikhLantikan != null)
+                if (TarikhLantikan != null)
                 {
                     return string.Format("{0:dd-mm-yyyy}", TarikhLantikan);
                 }
@@ -46,6 +46,7 @@ namespace eSPP.Models
         public decimal? BonusDiterima { get; set; }
         public string Catatan { get; set; }
         public bool IsMuktamad { get; set; }
+        public int MinBulan { get; set; }
 
         public static List<BonusSambilanDetailModel> GetBonusSambilanDetailData(int month, int year)
         {
@@ -53,7 +54,7 @@ namespace eSPP.Models
             List<HR_BONUS_SAMBILAN_DETAIL> tableList = HR_BONUS_SAMBILAN_DETAIL.GetBonusSambilanDetailData(month, year);
 
             List<BonusSambilanDetailModel> outputList = new List<BonusSambilanDetailModel>();
-            foreach(HR_BONUS_SAMBILAN_DETAIL y in tableList)
+            foreach (HR_BONUS_SAMBILAN_DETAIL y in tableList)
             {
                 BonusSambilanDetailModel d = new BonusSambilanDetailModel();
                 HR_MAKLUMAT_PERIBADI maklumat = db.HR_MAKLUMAT_PERIBADI.Where(m => m.HR_NO_PEKERJA == y.HR_NO_PEKERJA).FirstOrDefault();
@@ -82,7 +83,8 @@ namespace eSPP.Models
                 d.GajiPurata = y.HR_GAJI_PURATA;
                 d.BonusDiterima = y.HR_BONUS_DITERIMA;
                 d.Catatan = y.HR_CATATAN;
-                if(y.HR_MUKTAMAD > 0)
+                d.MinBulan = y.HR_BULAN_START;
+                if (y.HR_MUKTAMAD > 0)
                 {
                     d.IsMuktamad = true;
                 }
@@ -91,6 +93,84 @@ namespace eSPP.Models
                     d.IsMuktamad = false;
                 }
                 outputList.Add(d);
+            }
+            return outputList;
+        }
+
+        /// <summary>
+        /// Output BONUS_SAMBILAN_DETAIL data from HR_TRANSAKSI_SAMBILAN_DETAIL
+        /// </summary>
+        /// <param name="startMonth">start of month (if not Jan)</param>
+        /// <param name="month">bulan bonus dibayar</param>
+        /// <param name="year">tahun bonus dibayar</param>
+        /// <returns>List BonusSambilanDetailModel</returns>
+        public static List<BonusSambilanDetailModel> GetDetailsFromTransaksi
+            (int startMonth, int month, int year)
+        {
+            ApplicationDbContext db = new ApplicationDbContext();
+            List<string> listHR_PEKERJA = db.HR_TRANSAKSI_SAMBILAN_DETAIL
+                .Where(s => s.HR_BULAN_DIBAYAR == month
+                && s.HR_BULAN_BEKERJA > startMonth
+                && s.HR_TAHUN == year).Select(s => s.HR_NO_PEKERJA).Distinct().ToList();
+
+            List<BonusSambilanDetailModel> outputList = new List<BonusSambilanDetailModel>();
+            foreach (string hr_pekerja in listHR_PEKERJA)
+            {
+                BonusSambilanDetailModel det = new BonusSambilanDetailModel();
+                List<HR_TRANSAKSI_SAMBILAN_DETAIL> elaunlain =
+                    db.HR_TRANSAKSI_SAMBILAN_DETAIL.
+                    Where(x => x.HR_NO_PEKERJA == hr_pekerja
+                    && x.HR_TAHUN == year
+                    && x.HR_BULAN_BEKERJA > startMonth
+                    && x.HR_BULAN_DIBAYAR == month).ToList();
+
+                HR_MAKLUMAT_PERIBADI maklumat = db.HR_MAKLUMAT_PERIBADI
+                    .Where(m => m.HR_NO_PEKERJA == hr_pekerja).FirstOrDefault();
+                HR_MAKLUMAT_PEKERJAAN kerja = db.HR_MAKLUMAT_PEKERJAAN
+                    .Where(m => m.HR_NO_PEKERJA == hr_pekerja).FirstOrDefault();
+                det.BulanBonus = month;
+                det.TahunBonus = year;
+                det.Nama = maklumat.HR_NAMA_PEKERJA;
+                det.NoPekerja = hr_pekerja;
+                det.NoKadPengenalan = maklumat.HR_NO_KPBARU;
+                det.NoAkaunBank = kerja.HR_NO_AKAUN_BANK;
+                det.NoKWSP = kerja.HR_NO_KWSP;
+                det.TarikhLantikan = kerja.HR_TARIKH_LANTIKAN;
+                
+                det.Jan = elaunlain
+                        .Where(c => c.HR_BULAN_BEKERJA == 1).Sum(c => c.HR_JUMLAH);
+                det.Feb = elaunlain
+                    .Where(c => c.HR_BULAN_BEKERJA == 2).Sum(c => c.HR_JUMLAH);
+                det.Mac = elaunlain
+                    .Where(c => c.HR_BULAN_BEKERJA == 3).Sum(c => c.HR_JUMLAH);
+                det.April = elaunlain
+                    .Where(c => c.HR_BULAN_BEKERJA == 4).Sum(c => c.HR_JUMLAH);
+                det.Mei = elaunlain
+                    .Where(c => c.HR_BULAN_BEKERJA == 5).Sum(c => c.HR_JUMLAH);
+                det.Jun = elaunlain
+                    .Where(c => c.HR_BULAN_BEKERJA == 6).Sum(c => c.HR_JUMLAH);
+                det.Julai = elaunlain
+                    .Where(c => c.HR_BULAN_BEKERJA == 7).Sum(c => c.HR_JUMLAH);
+                det.Ogos = elaunlain
+                    .Where(c => c.HR_BULAN_BEKERJA == 8).Sum(c => c.HR_JUMLAH);
+                det.September = elaunlain
+                    .Where(c => c.HR_BULAN_BEKERJA == 9).Sum(c => c.HR_JUMLAH);
+                det.Oktober = elaunlain
+                    .Where(c => c.HR_BULAN_BEKERJA == 10).Sum(c => c.HR_JUMLAH);
+                det.November = elaunlain
+                    .Where(c => c.HR_BULAN_BEKERJA == 11).Sum(c => c.HR_JUMLAH);
+                det.Disember = elaunlain
+                    .Where(c => c.HR_BULAN_BEKERJA == 12).Sum(c => c.HR_JUMLAH);
+                det.JumlahGaji = elaunlain.Sum(c => c.HR_JUMLAH);
+                det.MinBulan = startMonth;
+                int totalBulan = month - startMonth;
+                if (totalBulan > 0)
+                {
+                    det.GajiPurata = det.JumlahGaji == null ?
+                        0 : decimal.Round(Convert.ToDecimal(det.JumlahGaji) / totalBulan, 3);
+                }
+                det.IsMuktamad = false;
+                outputList.Add(det);
             }
             return outputList;
         }

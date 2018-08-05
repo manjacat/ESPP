@@ -34,16 +34,16 @@ namespace eSPP.Models
                 switch (MonthNumber)
                 {
                     case (1):
-                        _monthName = "Januari";
+                        _monthName = "Jan";
                         break;
                     case (2):
-                        _monthName = "Februari";
+                        _monthName = "Feb";
                         break;
                     case (3):
                         _monthName = "Mac";
                         break;
                     case (4):
-                        _monthName = "April";
+                        _monthName = "Apr";
                         break;
                     case (5):
                         _monthName = "Mei";
@@ -52,22 +52,22 @@ namespace eSPP.Models
                         _monthName = "Jun";
                         break;
                     case (7):
-                        _monthName = "Julai";
+                        _monthName = "Jul";
                         break;
                     case (8):
                         _monthName = "Ogos";
                         break;
                     case (9):
-                        _monthName = "September";
+                        _monthName = "Sept";
                         break;
                     case (10):
-                        _monthName = "Oktober";
+                        _monthName = "Okt";
                         break;
                     case (11):
-                        _monthName = "November";
+                        _monthName = "Nov";
                         break;
                     case (12):
-                        _monthName = "Disember";
+                        _monthName = "Dis";
                         break;
                     default:
                         _monthName = string.Empty;

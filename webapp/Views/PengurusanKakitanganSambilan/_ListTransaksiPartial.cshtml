@@ -48,7 +48,13 @@
 								<div class="btn-group col-12">
 									@if (item.MUKTAMAD == 0)
 									{
-										<a class="btn btn-xs btn-default btn-circle" href='@Url.Action("Sejarah", "KakitanganSambilan", new { HR_PEKERJA = item.HR_NO_PEKERJA, tahunbekerja = item.LIST_HR_TAHUN, bulanbekerja = item.LIST_HR_BULAN_BEKERJA, tahundibayar = item.LIST_HR_TAHUN_DIBAYAR, bulandibayar = item.LIST_HR_BULAN_DIBAYAR })' title="Kemaskini"><i class="fa fa-money"></i></a>
+										<a class="btn btn-xs btn-default btn-circle" title="Kemaskini"
+                                           href='@Url.Action("Sejarah", "KakitanganSambilan",
+                                                new { HR_PEKERJA = item.HR_NO_PEKERJA,
+                                                    tahunbekerja = item.LIST_HR_TAHUN,
+                                                    bulanbekerja = item.LIST_HR_BULAN_BEKERJA,
+                                                    tahundibayar = item.LIST_HR_TAHUN_DIBAYAR,
+                                                    bulandibayar = item.LIST_HR_BULAN_DIBAYAR })'><i class="fa fa-money"></i></a>
 									}
 									else if (item.MUKTAMAD == 1)
 									{
