@@ -232,10 +232,50 @@
                                                     <td>@x.JumlahGaji</td>
                                                     <td>@x.GajiPurata</td>
                                                     <td>
-                                                        <span>@x.BonusDiterima</span>
+                                                        <span>
+                                                            @if (x.BonusDiterima == null)
+                                                            {
+                                                                <!-- bonus diterima -->
+                                                                <input type="button" class="btn btn-default" name="btnBonus"
+                                                                       value="0"
+                                                                       data-month="@x.BulanBonus.ToString("D2")"
+                                                                       data-year="@x.TahunBonus.ToString()"
+                                                                       data-pekerja="@x.NoPekerja" />
+                                                            }
+                                                            else
+                                                            {
+                                                                <!-- bonus diterima -->
+                                                                <input type="button" class="btn btn-default" name="btnBonus"
+                                                                       value="@x.BonusDiterima"
+                                                                       data-month="@x.BulanBonus.ToString("D2")"
+                                                                       data-year="@x.TahunBonus.ToString()"
+                                                                       data-pekerja="@x.NoPekerja" />
+                                                            }
+                                                        </span>
                                                     </td>
                                                     <td>
-                                                        <span>@x.Catatan</span>
+                                                        @if (string.IsNullOrEmpty(x.Catatan))
+                                                        {
+                                                            <!-- catatan-->
+                                                            <a name="btnCatatan"
+                                                               href='#'
+                                                               data-month="@x.BulanBonus.ToString("D2")"
+                                                               data-year="@x.TahunBonus.ToString()"
+                                                               data-pekerja="@x.NoPekerja"
+                                                               data-catatan="@x.Catatan"
+                                                               title="Catatan">Klik</a>
+                                                        }
+                                                        else
+                                                        {
+                                                            <!-- catatan-->
+                                                            <a name="btnCatatan"
+                                                               href='#'
+                                                               data-month="@x.BulanBonus.ToString("D2")"
+                                                               data-year="@x.TahunBonus.ToString()"
+                                                               data-pekerja="@x.NoPekerja"
+                                                               data-catatan="@x.Catatan"
+                                                               title="Catatan">@x.Catatan</a>
+                                                        }
                                                     </td>
                                                     @*<td>
                                                             @if (x.IsMuktamad)
@@ -271,9 +311,13 @@
                                 <input type="hidden" name="bulanBekerja" value="@ViewBag.MinBulan" />
                                 <input type="hidden" name="bulanDibayar" value="@ViewBag.MaxBulan" />
                                 <input type="hidden" name="tahunDibayar" value="@ViewBag.MaxTahun" />
+                                @*<input type="hidden" name="isTemp" value="yes" />*@
                                 <p>
+                                    <button type="submit" class="btn btn-warning pull-right" id="Batal" name="Command" value="Batal">
+                                        <i class="fa fa-minus"></i> Batal
+                                    </button>
                                     <button type="submit" class="btn btn-success pull-right" id="Tambah" name="Command" value="Tambah">
-                                        <i class="fa fa-plus"></i>Tambah
+                                        <i class="fa fa-plus"></i> Tambah
                                     </button>
                                     <br />
                                     <br />
@@ -303,11 +347,48 @@
 
     </div>
 </div>
+<div id="dmessage1" style="display:none" title="Bonus Diterima">
+    @using (Html.BeginForm("UpdateBonus", "KakitanganSambilan", FormMethod.Post))
+    {
+        <fieldset>
+            <div class="form-group">
+                <input id="bonusDialog1" type="text" name="bonusDiterima" class="form-control" />
+                <input id="bulanDialog1" type="hidden" name="bulanBonus" />
+                <input id="tahunDialog1" type="hidden" name="tahunBonus" />
+                <input id="pekerjaDialog1" type="hidden" name="noPekerja" />
+                <input type="hidden" name="isTemp" value="yes" />
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Kemaskini" class="btn btn-primary pull-right" />
+            </div>
+        </fieldset>
+    }
+</div>
+
+<div id="dmessage2" style="display:none" title="Catatan">
+    @using (Html.BeginForm("UpdateCatatan", "KakitanganSambilan", FormMethod.Post))
+    {
+        <fieldset>
+            <div class="form-group">
+                @Html.TextArea("catatan", new { id = "catatanDialog2", @class = "form-control" })
+                <input id="bulanDialog2" type="hidden" name="bulanBonus" />
+                <input id="tahunDialog2" type="hidden" name="tahunBonus" />
+                <input id="pekerjaDialog2" type="hidden" name="noPekerja" />
+                <input type="hidden" name="isTemp" value="yes" />
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Kemaskini" class="btn btn-primary pull-right" />
+            </div>
+        </fieldset>
+    }
+</div>
 <!-- END MAIN CONTENT -->
 @section pagespecific {
     <script type="text/javascript">
         $(document).ready(function () {
             UpdateInput();
+            KlikBonus();
+            KlikCatatan();
         });
 
         function UpdateInput() {
@@ -324,6 +405,34 @@
             if (startMonth != null) {
                 bulanBekerja.val(startMonth);
             }
+        }
+
+        function KlikBonus() {
+            var bonusDialog = $('#dmessage1').dialog({
+                autoOpen: false
+            });
+
+            $("[name=btnBonus]").button().on("click", function () {
+                $('#bonusDialog1').val($(this).val());
+                $('#bulanDialog1').val($(this).attr('data-month'));
+                $('#tahunDialog1').val($(this).attr('data-year'));
+                $('#pekerjaDialog1').val($(this).attr('data-pekerja'));
+                bonusDialog.dialog("open");
+            });
+        }
+
+        function KlikCatatan() {
+            var bonusDialog2 = $('#dmessage2').dialog({
+                autoOpen: false
+            });
+
+            $("[name=btnCatatan]").button().on("click", function () {
+                $('#catatanDialog2').val($(this).attr('data-catatan'));
+                $('#bulanDialog2').val($(this).attr('data-month'));
+                $('#tahunDialog2').val($(this).attr('data-year'));
+                $('#pekerjaDialog2').val($(this).attr('data-pekerja'));
+                bonusDialog2.dialog("open");
+            });
         }
 
         function getParameterByName(name, url) {

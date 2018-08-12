@@ -13,7 +13,8 @@ namespace eSPP.App_Helpers.ExcelHelper
         private static int SetDataRow(IWorkbook workbook, ISheet sheet1, 
             int startrow, ReportBorangAModel reportData)
         {
-            ICellStyle alignCenter = AlignCenter(workbook);
+            ICellStyle alignCenter = AlignLeft(workbook);
+            ICellStyle alignRight = AlignRight(workbook);
             int columnStart = 0;
             foreach(PekerjaReportModel x in reportData.PekerjaSambilan)
             {
@@ -40,6 +41,7 @@ namespace eSPP.App_Helpers.ExcelHelper
                     }
                     else if (col == columnStart + 4)
                     {
+                        nCell.CellStyle = alignRight;
                         nCell.SetCellValue(String.Format("RM{0:0.00}", x.CarumanRM));
                     }
                     sheet1.AutoSizeColumn(col);

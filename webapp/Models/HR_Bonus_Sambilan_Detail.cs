@@ -44,6 +44,7 @@ namespace eSPP.Models
         public Nullable<decimal> HR_BONUS_DITERIMA { get; set; }
 
         public int HR_BULAN_START { get; set; }
+        public int HR_STATUS { get; set; }
 
         [MaxLength(1000)]
         public string HR_CATATAN { get; set; }
@@ -120,6 +121,110 @@ namespace eSPP.Models
             return list;
         }
 
+        public static void InsertTambahBonus(List<BonusSambilanDetailModel> listBonus)
+        {
+            ApplicationDbContext db = new ApplicationDbContext();
+            foreach (BonusSambilanDetailModel bonus in listBonus)
+            {
+                string noPekerja = bonus.NoPekerja;
+                HR_BONUS_SAMBILAN_DETAIL det = db.HR_BONUS_SAMBILAN_DETAIL
+                    .Where(x => x.HR_BULAN_BONUS == bonus.BulanBonus
+                    && x.HR_TAHUN_BONUS == bonus.TahunBonus
+                    && x.HR_NO_PEKERJA == bonus.NoPekerja).FirstOrDefault();
+                if (det == null)
+                {
+                    det = new HR_BONUS_SAMBILAN_DETAIL
+                    {
+                        HR_NO_PEKERJA = bonus.NoPekerja,
+                        HR_NO_KPBARU = bonus.NoKadPengenalan,
+                        HR_TAHUN_BONUS = bonus.TahunBonus,
+                        HR_BULAN_BONUS = bonus.BulanBonus,
+                        HR_JANUARI = bonus.Jan,
+                        HR_FEBRUARI = bonus.Feb,
+                        HR_MAC = bonus.Mac,
+                        HR_APRIL = bonus.April,
+                        HR_MEI = bonus.Mei,
+                        HR_JUN = bonus.Jun,
+                        HR_JULAI = bonus.Julai,
+                        HR_OGOS = bonus.Ogos,
+                        HR_SEPTEMBER = bonus.September,
+                        HR_OKTOBER = bonus.Oktober,
+                        HR_NOVEMBER = bonus.November,
+                        HR_DISEMBER = bonus.Disember,
+                        HR_JUMLAH_GAJI = bonus.JumlahGaji,
+                        HR_GAJI_PURATA = bonus.GajiPurata,
+                        HR_BONUS_DITERIMA = bonus.BonusDiterima,
+                        HR_CATATAN = bonus.Catatan,
+                        HR_BULAN_START = bonus.MinBulan,
+                        HR_MUKTAMAD = 0, //set tu belum muktamad
+                        HR_STATUS = 0 //Not yet confirmed
+                    };
+                    db.HR_BONUS_SAMBILAN_DETAIL.Add(det);
+                    db.SaveChanges();
+                }
+                else
+                {
+                    det.HR_NO_PEKERJA = bonus.NoPekerja;
+                    det.HR_NO_KPBARU = bonus.NoKadPengenalan;
+                    det.HR_TAHUN_BONUS = bonus.TahunBonus;
+                    det.HR_BULAN_BONUS = bonus.BulanBonus;
+                    det.HR_JANUARI = bonus.Jan;
+                    det.HR_FEBRUARI = bonus.Feb;
+                    det.HR_MAC = bonus.Mac;
+                    det.HR_APRIL = bonus.April;
+                    det.HR_MEI = bonus.Mei;
+                    det.HR_JUN = bonus.Jun;
+                    det.HR_JULAI = bonus.Julai;
+                    det.HR_OGOS = bonus.Ogos;
+                    det.HR_SEPTEMBER = bonus.September;
+                    det.HR_OKTOBER = bonus.Oktober;
+                    det.HR_NOVEMBER = bonus.November;
+                    det.HR_DISEMBER = bonus.Disember;
+                    det.HR_JUMLAH_GAJI = bonus.JumlahGaji;
+                    det.HR_GAJI_PURATA = bonus.GajiPurata;
+                    det.HR_BONUS_DITERIMA = bonus.BonusDiterima;
+                    det.HR_CATATAN = bonus.Catatan;
+                    det.HR_BULAN_START = bonus.MinBulan;
+                    det.HR_MUKTAMAD = 0; //set tu belum muktamad
+                    det.HR_STATUS = 0; //Not yet confirmed
+                    db.Entry(det).State = EntityState.Modified;
+                    db.SaveChanges();
+                }
+            }
+        }
+
+        public static void UpdateTambahBonus()
+        {
+            ApplicationDbContext db = new ApplicationDbContext();
+            List<HR_BONUS_SAMBILAN_DETAIL> listDet = db.HR_BONUS_SAMBILAN_DETAIL
+                .Where(x => x.HR_STATUS == 0).ToList();
+            foreach (HR_BONUS_SAMBILAN_DETAIL det in listDet)
+            {
+                det.HR_STATUS = 1;
+                db.Entry(det).State = EntityState.Modified;
+                db.SaveChanges();
+            }           
+        }
+
+        public static void DeleteTambahBonus()
+        {
+            try
+            {
+                ApplicationDbContext db = new ApplicationDbContext();
+                List<HR_BONUS_SAMBILAN_DETAIL> listDet = db.HR_BONUS_SAMBILAN_DETAIL
+                    .Where(x => x.HR_STATUS == 0).ToList();
+                foreach (HR_BONUS_SAMBILAN_DETAIL det in listDet)
+                {
+                    db.Entry(det).State = EntityState.Deleted;
+                    db.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.Write(ex.ToString());
+            }
+        }
+
         public static void UpdateBonusDiterima(int month, int year, string noPekerja, decimal bonus)
         {
             ApplicationDbContext db = new ApplicationDbContext();
@@ -127,7 +232,7 @@ namespace eSPP.Models
                 .Where(x => x.HR_BULAN_BONUS == month
                 && x.HR_TAHUN_BONUS == year
                 && x.HR_NO_PEKERJA == noPekerja).FirstOrDefault();
-            if(det != null)
+            if (det != null)
             {
                 det.HR_BONUS_DITERIMA = bonus;
                 db.Entry(det).State = EntityState.Modified;

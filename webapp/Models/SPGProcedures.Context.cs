@@ -18,7 +18,7 @@ namespace eSPP.Models
     public partial class Entities1 : DbContext
     {
         public Entities1()
-            : base("name=Entities")
+            : base("name=SPGEntities2")
         {
         }
     

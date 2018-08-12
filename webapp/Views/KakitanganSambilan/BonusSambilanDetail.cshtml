@@ -216,12 +216,24 @@
                                                         }
                                                         else
                                                         {
-                                                            <!-- bonus diterima -->
-                                                            <input type="button" class="btn btn-default" name="btnBonus"
-                                                                   value="@x.BonusDiterima"
-                                                                   data-month="@x.BulanBonus.ToString("D2")"
-                                                                   data-year="@x.TahunBonus.ToString()"
-                                                                   data-pekerja="@x.NoPekerja" />
+                                                            if (x.BonusDiterima == null)
+                                                            {
+                                                                <!-- bonus diterima -->
+                                                                <input type="button" class="btn btn-default" name="btnBonus"
+                                                                       value="0"
+                                                                       data-month="@x.BulanBonus.ToString("D2")"
+                                                                       data-year="@x.TahunBonus.ToString()"
+                                                                       data-pekerja="@x.NoPekerja" />
+                                                            }
+                                                            else
+                                                            {
+                                                                <!-- bonus diterima -->
+                                                                <input type="button" class="btn btn-default" name="btnBonus"
+                                                                       value="@x.BonusDiterima"
+                                                                       data-month="@x.BulanBonus.ToString("D2")"
+                                                                       data-year="@x.TahunBonus.ToString()"
+                                                                       data-pekerja="@x.NoPekerja" />
+                                                            }
                                                         }
                                                     </td>
                                                     <td>
@@ -231,14 +243,28 @@
                                                         }
                                                         else
                                                         {
-                                                            <!-- catatan-->
-                                                            <a name="btnCatatan"
-                                                               href='#'
-                                                               data-month="@x.BulanBonus.ToString("D2")"
-                                                               data-year="@x.TahunBonus.ToString()"
-                                                               data-pekerja="@x.NoPekerja"
-                                                               data-catatan="@x.Catatan"
-                                                               title="Catatan">@x.Catatan</a>
+                                                            if (string.IsNullOrEmpty(x.Catatan))
+                                                            {
+                                                                <!-- catatan-->
+                                                                <a name="btnCatatan"
+                                                                   href='#'
+                                                                   data-month="@x.BulanBonus.ToString("D2")"
+                                                                   data-year="@x.TahunBonus.ToString()"
+                                                                   data-pekerja="@x.NoPekerja"
+                                                                   data-catatan="@x.Catatan"
+                                                                   title="Catatan">Klik</a>
+                                                            }
+                                                            else
+                                                            {
+                                                                <!-- catatan-->
+                                                                <a name="btnCatatan"
+                                                                   href='#'
+                                                                   data-month="@x.BulanBonus.ToString("D2")"
+                                                                   data-year="@x.TahunBonus.ToString()"
+                                                                   data-pekerja="@x.NoPekerja"
+                                                                   data-catatan="@x.Catatan"
+                                                                   title="Catatan">@x.Catatan</a>
+                                                            }
                                                         }
                                                     </td>
                                                     <td>

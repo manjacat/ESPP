@@ -170,7 +170,8 @@ namespace eSPP.Controllers
         }
 
         [HttpPost]
-        public ActionResult UpdateBonus(string bonusDiterima, string bulanBonus, string tahunBonus, string noPekerja)
+        public ActionResult UpdateBonus(string bonusDiterima, string bulanBonus, 
+            string tahunBonus, string noPekerja, string isTemp = "")
         {
             ManageMessageId outputMsg;
             try
@@ -185,12 +186,22 @@ namespace eSPP.Controllers
             {
                 outputMsg = ManageMessageId.Error;
             }
-            
-            return RedirectToAction("BonusSambilanDetail", new { month = bulanBonus, year = tahunBonus, message = outputMsg });
+
+            if (!string.IsNullOrEmpty(isTemp))
+            {
+                return RedirectToAction("TambahBonus", 
+                    new { month = bulanBonus, year = tahunBonus, message = outputMsg,
+                        isTemp = "yes"});
+            }
+            else
+            {
+                return RedirectToAction("BonusSambilanDetail", new { month = bulanBonus, year = tahunBonus, message = outputMsg });
+            }
         }
 
         [HttpPost]
-        public ActionResult UpdateCatatan(string catatan, string bulanBonus, string tahunBonus, string noPekerja)
+        public ActionResult UpdateCatatan(string catatan, string bulanBonus, 
+            string tahunBonus, string noPekerja, string isTemp = "")
         {
             ManageMessageId outputMsg;
             try
@@ -205,7 +216,16 @@ namespace eSPP.Controllers
                 outputMsg = ManageMessageId.Error;
             }
 
-            return RedirectToAction("BonusSambilanDetail", new { month = bulanBonus, year = tahunBonus, message = outputMsg });
+            if (!string.IsNullOrEmpty(isTemp))
+            {
+                return RedirectToAction("TambahBonus", 
+                    new { month = bulanBonus, year = tahunBonus, message = outputMsg,
+                        isTemp = "yes" });
+            }
+            else
+            {
+                return RedirectToAction("BonusSambilanDetail", new { month = bulanBonus, year = tahunBonus, message = outputMsg });
+            }
         }
 
         public ActionResult UpdateMuktamad(string bulanBonus, string tahunBonus, string noPekerja = null)
@@ -226,21 +246,44 @@ namespace eSPP.Controllers
             return RedirectToAction("BonusSambilanDetail", new { month = bulanBonus, year = tahunBonus, message = outputMsg });
         }
 
-        public ActionResult TambahBonus()
+        public ActionResult TambahBonus(string month = "1", string year = "0", 
+            string isTemp = "")
         {
             List<BonusSambilanDetailModel> bonus = new List<BonusSambilanDetailModel>();
-            return View(bonus);
+            if (isTemp != "yes")
+            {                
+                return View(bonus);
+            }
+            else
+            {
+                int monthInt = Convert.ToInt32(month);
+                int yearInt = Convert.ToInt32(year);
+                ViewBag.MaxBulan = monthInt;
+                ViewBag.MaxTahun = yearInt;
+                bonus = BonusSambilanDetailModel.GetBonusSambilanDetailData(monthInt, yearInt);
+                int startMonth = bonus.Select(x => x.MinBulan).FirstOrDefault();
+                ViewBag.MinBulan = startMonth;
+                return View(bonus);
+            }
         }
 
         [HttpPost]
-        public ActionResult TambahBonus(string bulanBekerja, string bulanDibayar, string tahunDibayar, string Command)
+        public ActionResult TambahBonus(int bulanBekerja, int bulanDibayar, 
+            int tahunDibayar, string Command)
         {
             if(Command == "Tambah")
             {
                 //TODO add to HR_BONUS_SAMBILAN_DETAIL
                 ManageMessageId outputMsg = ManageMessageId.Tambah;
+                HR_BONUS_SAMBILAN_DETAIL.UpdateTambahBonus();
                 return RedirectToAction("BonusSambilanDetail",
                     new { month = bulanDibayar, year = tahunDibayar, message = outputMsg });
+            }
+            else if(Command == "Batal")
+            {
+                HR_BONUS_SAMBILAN_DETAIL.DeleteTambahBonus();
+                return RedirectToAction("TambahBonus",
+                    new { month = bulanDibayar, year = tahunDibayar});
             }
             else
             {
@@ -257,10 +300,14 @@ namespace eSPP.Controllers
                     ViewBag.MaxBulan = month;
                     ViewBag.MaxTahun = year;
                     bonus = BonusSambilanDetailModel.GetDetailsFromTransaksi(startMonth, month, year);
+                    if(bonus.Count() > 0)
+                    {
+                        HR_BONUS_SAMBILAN_DETAIL.InsertTambahBonus(bonus); //add to database
+                    }
                 }
-                catch
+                catch (Exception ex)
                 {
-
+                    Console.Write(ex.ToString());
                 }
                 return View(bonus);
             }            

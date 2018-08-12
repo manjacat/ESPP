@@ -30,6 +30,272 @@ namespace eSPP.Models
                 _carumanRM = value;
             }
         }
+
+        public static List<PekerjaReportModel> GetPerkesoSukan(int bulan, int tahun)
+        {
+            SPGContext spgDb = new SPGContext();
+            ApplicationDbContext db = new ApplicationDbContext();
+            string[] kwspSambilan = new string[]
+            {
+                "P0160",
+                "P0163"
+            };
+
+            //N = sambilan, A = sukan
+            List<string> list_pekerja = db.HR_MAKLUMAT_PEKERJAAN
+                .Where(s => s.HR_TARAF_JAWATAN == "A").Select(x => x.HR_NO_PEKERJA).ToList();
+
+            var potongList = spgDb.PA_TRANSAKSI_PEMOTONGAN
+                .Where(s => s.PA_BULAN_POTONGAN == bulan
+                && s.PA_TAHUN_POTONGAN == tahun
+                && kwspSambilan.Contains(s.PA_KOD_PEMOTONGAN)
+                && list_pekerja.Contains(s.PA_NO_PEKERJA))
+                .GroupBy(s => new { s.PA_NO_PEKERJA, s.PA_BULAN_POTONGAN, s.PA_TAHUN_POTONGAN })
+                .Select(g => new
+                {
+                    PA_No_Pekerja = g.Key.PA_NO_PEKERJA,
+                    PA_Jumlah_Pemontongan = g.Sum(x => x.PA_JUMLAH_PEMOTONGAN),
+                    PA_Bulan = g.Key.PA_BULAN_POTONGAN,
+                    PA_Tahun = g.Key.PA_TAHUN_POTONGAN
+                })
+                .ToList();
+
+
+            List<PekerjaReportModel> pekerja = new List<PekerjaReportModel>();
+
+            int counter = 0;
+            foreach (var item in potongList)
+            {
+                HR_MAKLUMAT_PERIBADI maklumatPeribat = db.HR_MAKLUMAT_PERIBADI
+                    .Where(s => s.HR_NO_PEKERJA == item.PA_No_Pekerja).FirstOrDefault();
+
+                if (maklumatPeribat != null)
+                {
+                    PekerjaReportModel m = new PekerjaReportModel();
+                    counter++;
+                    m.Bil = counter;
+                    m.NamaPekerja = maklumatPeribat.HR_NAMA_PEKERJA;
+                    m.NoKesSosial = string.Empty;
+                    m.NoKadPengenalan = maklumatPeribat.HR_NO_KPBARU;
+                    try
+                    {
+                        decimal totalVal = Convert.ToDecimal(item.PA_Jumlah_Pemontongan); //* Convert.ToDecimal(caruman);
+                        totalVal = decimal.Round(totalVal);
+                        m.CarumanRM = totalVal;
+                    }
+                    catch
+                    {
+                        m.CarumanRM = 0;
+                    }
+                    pekerja.Add(m);
+                }
+            }
+            return pekerja;
+        }
+
+        public static List<PekerjaReportModel> GetPerkesoSambilan(int bulan, int tahun)
+        {
+            SPGContext spgDb = new SPGContext();
+            ApplicationDbContext db = new ApplicationDbContext();
+            string[] kwspSambilan = new string[]
+            {
+                "P0160",
+                "P0163"
+            };
+
+            //N = sambilan, A = sukan
+            List<string> list_pekerja = db.HR_MAKLUMAT_PEKERJAAN
+                .Where(s => s.HR_TARAF_JAWATAN == "N").Select(x => x.HR_NO_PEKERJA).ToList();
+
+            var potongList = spgDb.PA_TRANSAKSI_PEMOTONGAN
+                .Where(s => s.PA_BULAN_POTONGAN == bulan
+                && s.PA_TAHUN_POTONGAN == tahun
+                && kwspSambilan.Contains(s.PA_KOD_PEMOTONGAN)
+                && list_pekerja.Contains(s.PA_NO_PEKERJA))
+                .GroupBy(s => new { s.PA_NO_PEKERJA, s.PA_BULAN_POTONGAN, s.PA_TAHUN_POTONGAN })
+                .Select(g => new
+                {
+                    PA_No_Pekerja = g.Key.PA_NO_PEKERJA,
+                    PA_Jumlah_Pemontongan = g.Sum(x => x.PA_JUMLAH_PEMOTONGAN),
+                    PA_Bulan = g.Key.PA_BULAN_POTONGAN,
+                    PA_Tahun = g.Key.PA_TAHUN_POTONGAN
+                })
+                .ToList();
+
+
+            List<PekerjaReportModel> pekerja = new List<PekerjaReportModel>();
+
+            int counter = 0;
+            foreach (var item in potongList)
+            {
+                HR_MAKLUMAT_PERIBADI maklumatPeribat = db.HR_MAKLUMAT_PERIBADI
+                    .Where(s => s.HR_NO_PEKERJA == item.PA_No_Pekerja).FirstOrDefault();
+
+                if (maklumatPeribat != null)
+                {
+                    PekerjaReportModel m = new PekerjaReportModel();
+                    counter++;
+                    m.Bil = counter;
+                    m.NamaPekerja = maklumatPeribat.HR_NAMA_PEKERJA;
+                    m.NoKesSosial = string.Empty;
+                    m.NoKadPengenalan = maklumatPeribat.HR_NO_KPBARU;
+                    try
+                    {
+                        decimal totalVal = Convert.ToDecimal(item.PA_Jumlah_Pemontongan); //* Convert.ToDecimal(caruman);
+                        totalVal = decimal.Round(totalVal);
+                        m.CarumanRM = totalVal;
+                    }
+                    catch
+                    {
+                        m.CarumanRM = 0;
+                    }
+                    pekerja.Add(m);
+                }
+            }
+            return pekerja;
+        }
+
+        public static List<PekerjaReportModel> BorangASukan(int bulan, int tahun)
+        {
+            SPGContext spgDb = new SPGContext();
+            ApplicationDbContext db = new ApplicationDbContext();
+            string[] kwspSambilan = new string[]
+            {
+                "P0035",
+                "P0050"
+            };
+
+            //N = sambilan, A = sukan
+            List<string> list_pekerja = db.HR_MAKLUMAT_PEKERJAAN
+                .Where(s => s.HR_TARAF_JAWATAN == "A").Select(x => x.HR_NO_PEKERJA).ToList();
+
+            var potongList = spgDb.PA_TRANSAKSI_PEMOTONGAN
+                .Where(s => s.PA_BULAN_POTONGAN == bulan
+                && s.PA_TAHUN_POTONGAN == tahun
+                && kwspSambilan.Contains(s.PA_KOD_PEMOTONGAN)
+                && list_pekerja.Contains(s.PA_NO_PEKERJA))
+                .GroupBy(s => new { s.PA_NO_PEKERJA, s.PA_BULAN_POTONGAN, s.PA_TAHUN_POTONGAN })
+                .Select(g => new
+                {
+                    PA_No_Pekerja = g.Key.PA_NO_PEKERJA,
+                    PA_Jumlah_Pemontongan = g.Sum(x => x.PA_JUMLAH_PEMOTONGAN),
+                    PA_Bulan = g.Key.PA_BULAN_POTONGAN,
+                    PA_Tahun = g.Key.PA_TAHUN_POTONGAN
+                })
+                .ToList();
+
+
+            List<PekerjaReportModel> pekerja = new List<PekerjaReportModel>();
+
+            int counter = 0;
+            foreach (var item in potongList)
+            {
+                HR_MAKLUMAT_PERIBADI maklumatPeribat = db.HR_MAKLUMAT_PERIBADI
+                    .Where(s => s.HR_NO_PEKERJA == item.PA_No_Pekerja).FirstOrDefault();
+
+                if (maklumatPeribat != null)
+                {
+                    PekerjaReportModel m = new PekerjaReportModel();
+                    counter++;
+                    m.Bil = counter;
+                    m.NamaPekerja = maklumatPeribat.HR_NAMA_PEKERJA;
+                    m.NoKesSosial = string.Empty;
+                    m.NoKadPengenalan = maklumatPeribat.HR_NO_KPBARU;
+                    try
+                    {
+                        decimal totalVal = Convert.ToDecimal(spgDb.PA_TRANSAKSI_CARUMAN
+                            .Where(p => p.PA_NO_PEKERJA == item.PA_No_Pekerja
+                            && p.PA_BULAN_CARUMAN == item.PA_Bulan
+                            && p.PA_TAHUN_CARUMAN == item.PA_Tahun
+                            && p.PA_KOD_CARUMAN == "C0034")
+                            .Sum(p => p.PA_JUMLAH_CARUMAN));
+                        //decimal totalVal = Convert.ToDecimal(item.PA_Jumlah_Pemontongan); //* Convert.ToDecimal(caruman);
+                        totalVal = decimal.Round(totalVal);
+                        m.CarumanRM = totalVal;
+                    }
+                    catch
+                    {
+                        m.CarumanRM = 0;
+                    }
+                    pekerja.Add(m);
+                }
+            }
+            return pekerja;
+        }
+
+        public static List<PekerjaReportModel> GetBorangASambilan(int bulan, int tahun)
+        {
+            SPGContext spgDb = new SPGContext();
+            ApplicationDbContext db = new ApplicationDbContext();
+            string[] kwspSambilan = new string[]
+            {
+                "P0035",
+                "P0050"
+            };
+
+            string[] kodBorangA = new string[]
+            {
+                "C0034"
+            };
+
+            //N = sambilan, A = sukan
+            List<string> list_pekerja = db.HR_MAKLUMAT_PEKERJAAN
+                .Where(s => s.HR_TARAF_JAWATAN == "N").Select(x => x.HR_NO_PEKERJA).ToList();
+
+            var potongList = spgDb.PA_TRANSAKSI_PEMOTONGAN
+                .Where(s => s.PA_BULAN_POTONGAN == bulan
+                && s.PA_TAHUN_POTONGAN == tahun
+                && kwspSambilan.Contains(s.PA_KOD_PEMOTONGAN)
+                && list_pekerja.Contains(s.PA_NO_PEKERJA))
+                .GroupBy(s => new { s.PA_NO_PEKERJA, s.PA_BULAN_POTONGAN, s.PA_TAHUN_POTONGAN })
+                .Select(g => new
+                {
+                    PA_No_Pekerja = g.Key.PA_NO_PEKERJA,
+                    PA_Jumlah_Pemontongan = g.Sum(x => x.PA_JUMLAH_PEMOTONGAN),
+                    PA_Bulan = g.Key.PA_BULAN_POTONGAN,
+                    PA_Tahun = g.Key.PA_TAHUN_POTONGAN
+                })
+                .ToList();
+
+
+            List<PekerjaReportModel> pekerja = new List<PekerjaReportModel>();
+
+            int counter = 0;
+            foreach (var item in potongList)
+            {
+                HR_MAKLUMAT_PERIBADI maklumatPeribat = db.HR_MAKLUMAT_PERIBADI
+                    .Where(s => s.HR_NO_PEKERJA == item.PA_No_Pekerja).FirstOrDefault();
+
+                if (maklumatPeribat != null)
+                {
+                    PekerjaReportModel m = new PekerjaReportModel();
+                    counter++;
+                    m.Bil = counter;
+                    m.NamaPekerja = maklumatPeribat.HR_NAMA_PEKERJA;
+                    m.NoKesSosial = string.Empty;
+                    m.NoKadPengenalan = maklumatPeribat.HR_NO_KPBARU;
+                    try
+                    {
+                        decimal totalVal = Convert.ToDecimal(spgDb.PA_TRANSAKSI_CARUMAN
+                            .Where(p => p.PA_NO_PEKERJA == item.PA_No_Pekerja
+                            && p.PA_BULAN_CARUMAN == item.PA_Bulan
+                            && p.PA_TAHUN_CARUMAN == item.PA_Tahun
+                            && p.PA_KOD_CARUMAN == "C0034")
+                            .Sum(p => p.PA_JUMLAH_CARUMAN));
+
+                        //decimal totalVal = Convert.ToDecimal(item.PA_Jumlah_Pemontongan); //* Convert.ToDecimal(caruman);
+                        totalVal = decimal.Round(totalVal);
+                        m.CarumanRM = totalVal;
+                    }
+                    catch
+                    {
+                        m.CarumanRM = 0;
+                    }
+                    pekerja.Add(m);
+                }
+            }
+            return pekerja;
+        }
     }
 
     public class ReportBorangAModel
@@ -43,52 +309,25 @@ namespace eSPP.Models
 
         public static ReportBorangAModel GetReport(int bulan, int tahun, string jenisLaporan)
         {
-            ApplicationDbContext db = new ApplicationDbContext();
-
-            List<HR_TRANSAKSI_SAMBILAN_DETAIL> transaksisambilandetail 
-                = db.HR_TRANSAKSI_SAMBILAN_DETAIL.AsEnumerable()
-                    .Where(s => s.HR_BULAN_DIBAYAR == bulan 
-                    && s.HR_TAHUN == tahun 
-                    && s.HR_KOD == "C0020").ToList();
-            decimal? caruman = db.HR_CARUMAN
-                .Where(c => c.HR_KOD_CARUMAN == "C0020").Select(c => c.HR_PERATUS).First();
-
-            List<PekerjaReportModel> pekerja = new List<PekerjaReportModel>();
-
-            int counter = 0;
-            foreach (HR_TRANSAKSI_SAMBILAN_DETAIL item in transaksisambilandetail)
-            {
-                HR_MAKLUMAT_PERIBADI maklumatPeribat = db.HR_MAKLUMAT_PERIBADI
-                    .Where(s => s.HR_NO_PEKERJA == item.HR_NO_PEKERJA).FirstOrDefault();
-
-                if(maklumatPeribat != null)
-                {
-                    PekerjaReportModel m = new PekerjaReportModel();
-                    counter++;
-                    m.Bil = counter;
-                    m.NamaPekerja = maklumatPeribat.HR_NAMA_PEKERJA;
-                    m.NoKesSosial = string.Empty;
-                    m.NoKadPengenalan = maklumatPeribat.HR_NO_KPBARU;
-                    try
-                    {
-                        decimal totalVal = Convert.ToDecimal(item.HR_JUMLAH); //* Convert.ToDecimal(caruman);
-                        totalVal = decimal.Round(totalVal);
-                        m.CarumanRM = totalVal;
-                    }
-                    catch
-                    {
-                        m.CarumanRM = 0;
-                    }
-                    pekerja.Add(m);
-                }
-            }
-
             ReportBorangAModel reportData = new ReportBorangAModel();
-            reportData.PekerjaSambilan = pekerja;
-
+            switch (jenisLaporan)
+            {
+                case ("1"): //borangASambilan
+                    reportData.PekerjaSambilan = PekerjaReportModel.GetBorangASambilan(bulan, tahun);
+                    break;
+                case ("2"): //borangATunggakanSambilan
+                    reportData.PekerjaSambilan = PekerjaReportModel.GetBorangASambilan(bulan, tahun);
+                    break;
+                case ("3"): //borangASukan
+                    reportData.PekerjaSambilan = PekerjaReportModel.BorangASukan(bulan, tahun);
+                    break;
+                case ("4"): //borangATunggakanSukan
+                    reportData.PekerjaSambilan = PekerjaReportModel.BorangASukan(bulan, tahun);
+                    break;
+            }
             return reportData;
         }
-    }    
+    }
 }
 
 /*

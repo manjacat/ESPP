@@ -25,12 +25,37 @@ namespace eSPP.App_Helpers.ExcelHelper
             center.Alignment = HorizontalAlignment.Center;
             return center;
         }
-        
+
+        protected static ICellStyle AlignLeft(IWorkbook workbook)
+        {
+            ICellStyle left = workbook.CreateCellStyle();
+            left.Alignment = HorizontalAlignment.Left;
+            return left;
+        }
+
+        protected static ICellStyle AlignRight(IWorkbook workbook)
+        {
+            ICellStyle right = workbook.CreateCellStyle();
+            right.Alignment = HorizontalAlignment.Left;
+            return right;
+        }
+
         //row 0-4
         protected static int SetHeader(IWorkbook workbook, ISheet sheet1, int bulan, int tahun)
         {
-            string bulanTahunString = string.Format("{0} {1}", bulan, tahun);
-            DateTime tarikhAkhir = new DateTime(tahun, bulan + 1, 1);
+            var associativeArray = new Dictionary<int?, string>() { { 1, "JANUARI" }, { 2, "FEBRUARI" }, { 3, "MAC" }, { 4, "APRIL" }, { 5, "MEI" }, { 6, "JUN" }, { 7, "JULAI" }, { 8, "OGOS" }, { 9, "SEPTEMBER" }, { 10, "OKTOBER" }, { 11, "NOVEMBER" }, { 12, "DISEMBER" } };
+            string bulanString = "";
+            foreach (var m in associativeArray)
+            {
+                if (bulan == m.Key)
+                {
+                    bulanString = m.Value;
+                }
+            }
+
+            string bulanTahunString = string.Format("{0} {1}", bulanString, tahun);
+            DateTime tarikhAkhir = new DateTime(tahun, bulan, 1);
+            tarikhAkhir = tarikhAkhir.AddMonths(1);
             tarikhAkhir = tarikhAkhir.AddDays(-1);
 
             ICellStyle alignCenter = AlignCenter(workbook);
@@ -60,7 +85,7 @@ namespace eSPP.App_Helpers.ExcelHelper
                         nCell.SetCellValue("JUMLAH CARUMAN UNTUK BULAN DI ATAS HENDAKLAH DIBAYAR");
                         break;
                     case (4):
-                        nCell.SetCellValue("TIDAK LEWAT DARIPADA " + string.Format("{0:dd/mm/yyyy}",tarikhAkhir));
+                        nCell.SetCellValue("TIDAK LEWAT DARIPADA " + string.Format("{0:dd/MM/yyyy}",tarikhAkhir));
                         ICell cellLembaran = nRow.CreateCell(colWidth);
                         cellLembaran.SetCellValue("LEMBARAN: 1");
                         break;
