@@ -54,7 +54,7 @@ namespace eSPP.Models
                 string tarikhKerja = string.Format("{0:ddMMyyyy}", DateTime.Now);
                 if (kerja != null)
                 {
-                    tarikhKerja = string.Format("{0:ddMMyyyy}", kerja.HR_TARIKH_LANTIKAN);
+                    tarikhKerja = string.Format("{0:ddMMyyyy}", kerja.HR_TARIKH_MASUK);
                 }
 
                 if (maklumatPeribat != null)
@@ -63,17 +63,18 @@ namespace eSPP.Models
                     m.String1 = "B3200000538V";
                     m.String2 = maklumatPeribat.HR_NO_KPBARU;
                     m.String3 = maklumatPeribat.HR_NAMA_PEKERJA;
-                    m.String4 = string.Format("{0}{1}", bulan, tahun);
+                    m.String4 = string.Format("{0}{1}", bulan.ToString().PadLeft(2, '0'), tahun);
                     try
                     {
-                        decimal totalVal = Convert.ToDecimal(spgDb.PA_TRANSAKSI_CARUMAN
+                        decimal totalCaruman = Convert.ToDecimal(spgDb.PA_TRANSAKSI_CARUMAN
                             .Where(p => p.PA_NO_PEKERJA == item.PA_No_Pekerja
                             && p.PA_BULAN_CARUMAN == item.PA_Bulan
                             && p.PA_TAHUN_CARUMAN == item.PA_Tahun
                             && p.PA_KOD_CARUMAN == "C0034")
                             .Sum(p => p.PA_JUMLAH_CARUMAN));
-                        totalVal = decimal.Round(totalVal);
-                        m.String5 = string.Format("{0}{1}", totalVal, tarikhKerja);
+                        decimal totalPemotongan = Convert.ToDecimal(item.PA_Jumlah_Pemontongan);
+                        decimal totalSum = decimal.Round((totalCaruman + totalPemotongan) * 100);
+                        m.String5 = string.Format("{0}{1}", totalSum, tarikhKerja);
                     }
                     catch
                     {
@@ -125,7 +126,7 @@ namespace eSPP.Models
                 string tarikhKerja = string.Format("{0:ddMMyyyy}", DateTime.Now);
                 if (kerja != null)
                 {
-                    tarikhKerja = string.Format("{0:ddMMyyyy}", kerja.HR_TARIKH_LANTIKAN);
+                    tarikhKerja = string.Format("{0:ddMMyyyy}", kerja.HR_TARIKH_MASUK);
                 }
 
                 if (maklumatPeribat != null)
@@ -134,17 +135,18 @@ namespace eSPP.Models
                     m.String1 = "B3200000538V";
                     m.String2 = maklumatPeribat.HR_NO_KPBARU;
                     m.String3 = maklumatPeribat.HR_NAMA_PEKERJA;
-                    m.String4 = string.Format("{0}{1}", bulan, tahun);
+                    m.String4 = string.Format("{0}{1}", bulan.ToString().PadLeft(2,'0'), tahun);
                     try
                     {
-                        decimal totalVal = Convert.ToDecimal(spgDb.PA_TRANSAKSI_CARUMAN
+                        decimal totalCaruman = Convert.ToDecimal(spgDb.PA_TRANSAKSI_CARUMAN
                             .Where(p => p.PA_NO_PEKERJA == item.PA_No_Pekerja
                             && p.PA_BULAN_CARUMAN == item.PA_Bulan
                             && p.PA_TAHUN_CARUMAN == item.PA_Tahun
                             && p.PA_KOD_CARUMAN == "C0034")
                             .Sum(p => p.PA_JUMLAH_CARUMAN));
-                        totalVal = decimal.Round(totalVal);
-                        m.String5 = string.Format("{0}{1}", totalVal, tarikhKerja);
+                        decimal totalPemotongan = Convert.ToDecimal(item.PA_Jumlah_Pemontongan);
+                        decimal totalSum = decimal.Round((totalCaruman + totalPemotongan) * 100);
+                        m.String5 = string.Format("{0}{1}", totalSum, tarikhKerja);
                     }
                     catch
                     {

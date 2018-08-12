@@ -2815,9 +2815,9 @@ namespace eSPP.Controllers
             string longTextfile = string.Empty;
             foreach (TextFileModel item in text)
             {
-                string line = string.Format("{0}\t{1}\t{2}", item.String1, item.String2, item.String3);
+                string line = string.Format("{0}\t \t{1}{2}", item.String1, item.String2, item.String3);
                 longTextfile += line + Environment.NewLine;
-                string line2 = string.Format("{0}\t{1}\t{2}", string.Empty, item.String4, item.String5);
+                string line2 = string.Format("{0}\t \t \t{1}\t{2}", string.Empty, item.String4, item.String5);
                 longTextfile += line2 + Environment.NewLine;
             }
             return longTextfile;
