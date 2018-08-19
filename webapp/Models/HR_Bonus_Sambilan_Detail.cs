@@ -44,6 +44,7 @@ namespace eSPP.Models
         public Nullable<decimal> HR_BONUS_DITERIMA { get; set; }
 
         public int HR_BULAN_START { get; set; }
+        public int HR_BULAN_END { get; set; }
         public int HR_STATUS { get; set; }
 
         [MaxLength(1000)]
@@ -156,6 +157,8 @@ namespace eSPP.Models
                         HR_BONUS_DITERIMA = bonus.BonusDiterima,
                         HR_CATATAN = bonus.Catatan,
                         HR_BULAN_START = bonus.MinBulan,
+                        HR_BULAN_END = bonus.MaxBulan,
+
                         HR_MUKTAMAD = 0, //set tu belum muktamad
                         HR_STATUS = 0 //Not yet confirmed
                     };
@@ -185,6 +188,7 @@ namespace eSPP.Models
                     det.HR_BONUS_DITERIMA = bonus.BonusDiterima;
                     det.HR_CATATAN = bonus.Catatan;
                     det.HR_BULAN_START = bonus.MinBulan;
+                    det.HR_BULAN_END = bonus.MaxBulan;
                     det.HR_MUKTAMAD = 0; //set tu belum muktamad
                     det.HR_STATUS = 0; //Not yet confirmed
                     db.Entry(det).State = EntityState.Modified;

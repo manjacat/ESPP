@@ -99,7 +99,7 @@
                                     <table id="datatable_tabletools" class="table table-striped table-bordered table-hover">
                                         <thead>
                                             <tr>
-                                                <th colspan="12" style="text-align:center">Gaji Diterima Tahun 2018</th>
+                                                <th colspan="12" style="text-align:center">Gaji Diterima Tahun @ViewBag.Tahun</th>
                                             </tr>
                                             <tr>
                                                 <th class="col-sm-1">#</th>
@@ -154,7 +154,7 @@
         $(document).ready(function () {
             JanaTable();
             //ColorEmptyBulan();
-            //UpdateInput();
+            UpdateInput();
             //HideSearch();
         })
 
@@ -243,7 +243,7 @@
                     responsiveHelper_datatable_tabletools.respond();
                 }
             });
-            //$('div.tambah').after('<a name="btn_add" class="btn btn-success Tambah pull-right hidden-mobile" href="#"><span style="color:#FFF"><span class="fa fa-plus"></span> Tambah</span></a>');
+            $('div.tambah').after('<a name="btn_add" class="btn btn-success Tambah pull-right hidden-mobile" href="/KakitanganSambilan/TambahBonus?year=@ViewBag.Tahun"><span style="color:#FFF"><span class="fa fa-plus"></span> Tambah</span></a>');            
         }
     </script>
 }

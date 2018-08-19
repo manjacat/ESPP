@@ -26,6 +26,30 @@ namespace eSPP.App_Helpers.ExcelHelper
             return center;
         }
 
+        protected static ICellStyle BorderAlignCenter(IWorkbook workbook)
+        {
+            ICellStyle center = workbook.CreateCellStyle();
+            center.BorderTop = BorderStyle.Medium;
+            center.BorderLeft = BorderStyle.Medium;
+            center.BorderRight = BorderStyle.Medium;
+            center.BorderBottom = BorderStyle.Medium;
+            center.Alignment = HorizontalAlignment.Center;
+            return center;
+        }
+
+        protected static ICellStyle BorderAlignCenterColoured(IWorkbook workbook)
+        {
+            ICellStyle center = workbook.CreateCellStyle();
+            center.BorderTop = BorderStyle.Medium;
+            center.BorderLeft = BorderStyle.Medium;
+            center.BorderRight = BorderStyle.Medium;
+            center.BorderBottom = BorderStyle.Medium;
+            center.FillBackgroundColor = IndexedColors.Grey25Percent.Index;
+            //center.FillPattern = FillPattern.SolidForeground;
+            center.Alignment = HorizontalAlignment.Center;
+            return center;
+        }
+
         protected static ICellStyle AlignLeft(IWorkbook workbook)
         {
             ICellStyle left = workbook.CreateCellStyle();
@@ -40,8 +64,36 @@ namespace eSPP.App_Helpers.ExcelHelper
             return right;
         }
 
+        public static string GetBulanString(int bulan)
+        {
+            //var associativeArray = new Dictionary<int?, string>() { { 1, "JANUARI" }, { 2, "FEBRUARI" }, { 3, "MAC" }, { 4, "APRIL" }, { 5, "MEI" }, { 6, "JUN" }, { 7, "JULAI" }, { 8, "OGOS" }, { 9, "SEPTEMBER" }, { 10, "OKTOBER" }, { 11, "NOVEMBER" }, { 12, "DISEMBER" } };
+            var associativeArray =
+                new Dictionary<int?, string>() {
+                    { 1, "JAN" },
+                    { 2, "FEB" },
+                    { 3, "MAC" },
+                    { 4, "APR" },
+                    { 5, "MEI" },
+                    { 6, "JUN" },
+                    { 7, "JUL" },
+                    { 8, "OGOS" },
+                    { 9, "SEPT" },
+                    { 10, "OKT" },
+                    { 11, "NOV" },
+                    { 12, "DIS" } };
+            string bulanString = "";
+            foreach (var m in associativeArray)
+            {
+                if (bulan == m.Key)
+                {
+                    return m.Value;
+                }
+            }
+            return bulanString;
+        }
+
         //row 0-4
-        protected static int SetHeader(IWorkbook workbook, ISheet sheet1, int bulan, int tahun)
+        protected static int SetBorangAHeader(IWorkbook workbook, ISheet sheet1, int bulan, int tahun)
         {
             var associativeArray = new Dictionary<int?, string>() { { 1, "JANUARI" }, { 2, "FEBRUARI" }, { 3, "MAC" }, { 4, "APRIL" }, { 5, "MEI" }, { 6, "JUN" }, { 7, "JULAI" }, { 8, "OGOS" }, { 9, "SEPTEMBER" }, { 10, "OKTOBER" }, { 11, "NOVEMBER" }, { 12, "DISEMBER" } };
             string bulanString = "";
@@ -236,7 +288,7 @@ namespace eSPP.App_Helpers.ExcelHelper
 
             ISheet sheet1 = workbook.CreateSheet("Sheet 1");
             int currentRow;
-            currentRow = SetHeader(workbook, sheet1, 3, 2017);
+            currentRow = SetBorangAHeader(workbook, sheet1, 3, 2017);
             currentRow = SetBayaran(workbook, sheet1, currentRow + 1);
             currentRow = SetMajikan(workbook, sheet1, currentRow + 2);
             currentRow = SetTableHeader(workbook, sheet1, currentRow + 2);

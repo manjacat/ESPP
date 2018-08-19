@@ -197,6 +197,33 @@ namespace eSPP.Models
         //List Sjarah Pembayaran?
 
         //Methods
+        public int GetJumlahHari()
+        {
+            ApplicationDbContext db = new ApplicationDbContext();
+            var jumlahHari = db.HR_TRANSAKSI_SAMBILAN_DETAIL
+                .Where(x => x.HR_BULAN_BEKERJA == bulanbekerja
+                && x.HR_TAHUN_BEKERJA == tahunbekerja
+                && x.HR_BULAN_DIBAYAR == bulandibayar
+                && x.HR_TAHUN == tahundibayar
+                && x.HR_KOD == "GAJPS").Select(x => x.HR_JAM_HARI).FirstOrDefault();
+            jumlahHari = jumlahHari == null ? 0 : jumlahHari;
+            return Convert.ToInt32(jumlahHari);
+        }
+
+        public int GetJumlahOT()
+        {
+            ApplicationDbContext db = new ApplicationDbContext();
+            var jumlahHari = db.HR_TRANSAKSI_SAMBILAN_DETAIL
+                .Where(x => x.HR_BULAN_BEKERJA == bulanbekerja
+                && x.HR_TAHUN_BEKERJA == tahunbekerja
+                && x.HR_BULAN_DIBAYAR == bulandibayar
+                && x.HR_TAHUN == tahundibayar
+                && x.HR_KOD == "E0164").Select(x => x.HR_JAM_HARI).FirstOrDefault();
+            jumlahHari = jumlahHari == null ? 0 : jumlahHari;
+            return Convert.ToInt32(jumlahHari);
+        }
+
+
         public static PageSejarahModel Insert(PageSejarahModel agree, string user, string command)
         {
 
@@ -248,15 +275,16 @@ namespace eSPP.Models
                         emel.HR_NAMA_PEKERJA + " Telah menambah data untuk pekerja " + agree.HR_PEKERJA);
                     break;
                 case ("kemaskini"):
-                    InsertKemaskini(db, agree, gajisehariot1);
+                    InsertKemaskini(db, agree, listkwsp, maklumatelaun, maklumatpotongan, maklumatcaruman, gajipokok, gajisehariot1);
                     TrailLog(emel, role,
                         emel.HR_NAMA_PEKERJA + " Telah mengubah data untuk pekerja " + agree.HR_PEKERJA);
                     break;
                 case ("muktamad"):
-                default:
                     InsertMuktamad(db, agree);
                     TrailLog(emel, role,
                         emel.HR_NAMA_PEKERJA + " Telah mengubah data untuk pekerja " + agree.HR_PEKERJA);
+                    break;
+                default:                    
                     break;
             }
             return agree;
@@ -278,6 +306,20 @@ namespace eSPP.Models
         }
 
         private static void InsertKemaskini(ApplicationDbContext db, PageSejarahModel agree,
+            List<HR_KWSP> listkwsp,
+            List<HR_MAKLUMAT_ELAUN_POTONGAN> maklumatelaun,
+            HR_MAKLUMAT_ELAUN_POTONGAN maklumatpotongan,
+            List<HR_MAKLUMAT_ELAUN_POTONGAN> maklumatcaruman,
+            decimal gajipokok, decimal gajisehariot1)
+        {
+            InsertBulan(db, agree, gajisehariot1);
+            if (agree.tunggakan == "Y")
+            {
+                InsertTunggakan(db, agree, listkwsp, maklumatelaun, maklumatpotongan, maklumatcaruman, gajipokok, gajisehariot1);
+            }
+        }
+
+        private static void InsertBulan(ApplicationDbContext db, PageSejarahModel agree,
             decimal gajisehariot1)
         {
             HR_TRANSAKSI_SAMBILAN_DETAIL gaji = db.HR_TRANSAKSI_SAMBILAN_DETAIL
@@ -314,7 +356,7 @@ namespace eSPP.Models
                     HR_KOD_IND = "G",
                     HR_JUMLAH = agree.gajipokok,
                     HR_JAM_HARI = agree.jumlahhari,
-                    HR_YDP_LULUS_IND = agree.kelulusanydptunggakan
+                    HR_YDP_LULUS_IND = agree.kelulusanydp
                 };
                 db.HR_TRANSAKSI_SAMBILAN_DETAIL.Add(gaji);
             }
@@ -322,7 +364,7 @@ namespace eSPP.Models
             {
                 ot.HR_JUMLAH = gajisehariot1;
                 ot.HR_JAM_HARI = agree.jumlahot;
-                ot.HR_YDP_LULUS_IND = agree.kelulusanydptunggakan;
+                ot.HR_YDP_LULUS_IND = agree.kelulusanydp;
                 db.Entry(ot).State = EntityState.Modified;
             }
             else
@@ -345,6 +387,34 @@ namespace eSPP.Models
 
             db.SaveChanges();
         }
+
+        private static void InsertTunggakan(ApplicationDbContext db, PageSejarahModel agree,
+            List<HR_KWSP> listkwsp,
+            List<HR_MAKLUMAT_ELAUN_POTONGAN> maklumatelaun,
+            HR_MAKLUMAT_ELAUN_POTONGAN maklumatpotongan,
+            List<HR_MAKLUMAT_ELAUN_POTONGAN> maklumatcaruman,
+            decimal gajipokok, decimal gajisehariot1)
+        {
+            foreach (var kwsp in listkwsp)
+            {
+                if (gajipokok >= kwsp.HR_UPAH_DARI && gajipokok <= kwsp.HR_UPAH_HINGGA)
+                {
+                    InsertHRSAMBILAN(db, agree, true);
+                    InsertMAJIKANKWSP(db, agree, kwsp, true);
+                    InsertPekerjaKSWP(db, agree, kwsp, true);
+
+                    if (maklumatpotongan != null)
+                    {
+                        InsertMAKLUMATPOTONGAN(db, agree, maklumatpotongan, true);
+                    }
+                    InsertELAUNOT(db, agree, gajisehariot1, true);
+                    InsertGAJIPEKERJA(db, agree, true);
+                    InsertMAKLUMATELAUN(db, agree, maklumatelaun, true);
+                    InsertMAKLUMATCARUMAN(db, agree, maklumatcaruman, true);
+                }
+            }
+        }
+
 
         private static void TrailLog(HR_MAKLUMAT_PERIBADI emel, IdentityRole role,
             string message)
@@ -377,7 +447,14 @@ namespace eSPP.Models
             {
                 if (gajipokok >= kwsp.HR_UPAH_DARI && gajipokok <= kwsp.HR_UPAH_HINGGA)
                 {
-                    InsertHRSAMBILAN(db, agree);
+                    try
+                    {
+                        InsertHRSAMBILAN(db, agree);
+                    }
+                    catch
+                    {
+
+                    }
                     InsertMAJIKANKWSP(db, agree, kwsp);
                     InsertPekerjaKSWP(db, agree, kwsp);
 
@@ -397,7 +474,14 @@ namespace eSPP.Models
                 {
                     if (gajipokok >= kwsp.HR_UPAH_DARI && gajipokok <= kwsp.HR_UPAH_HINGGA)
                     {
-                        InsertHRSAMBILAN(db, agree, true);
+                        try
+                        {
+                            InsertHRSAMBILAN(db, agree, true);
+                        }
+                        catch
+                        {
+
+                        }
                         InsertMAJIKANKWSP(db, agree, kwsp, true);
                         InsertPekerjaKSWP(db, agree, kwsp, true);                        
                        

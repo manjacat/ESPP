@@ -77,54 +77,57 @@
                                         @using (Html.BeginForm())
                                         {
                                             @Html.AntiForgeryToken()
-                                            <fieldset>
+                                        <fieldset>
 
-                                                <div class="form-group">
-                                                    <label class="control-label col-md-3" for="prepend">Bulan Bekerja<font color="red">*</font></label>
-                                                    <div class="col-md-9">
-                                                        <div class="row">
-                                                            <div class="col-sm-12">
-                                                                <label class="input">
-                                                                    <input class="form-control" name="bulanBekerja" maxlength="2">
-                                                                    <label class="note">
-                                                                        Bulan mula bekerja
-                                                                    </label>
+                                            <div class="form-group">
+                                                <label class="control-label col-md-3" for="prepend">Bulan Bekerja (Dari)<font color="red">*</font></label>
+                                                <div class="col-md-9">
+                                                    <div class="row">
+                                                        <div class="col-sm-12">
+                                                            <label class="input">
+                                                                <input class="form-control" name="bulanBekerja" maxlength="2">
+                                                                <label class="note">
+                                                                    Bulan mula bekerja
                                                                 </label>
-                                                            </div>
+                                                            </label>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="form-group">
-                                                    <label class="control-label col-md-3" for="prepend">Bulan Dibayar<font color="red">*</font></label>
-                                                    <div class="col-md-9">
-                                                        <div class="row">
-                                                            <div class="col-sm-12">
-                                                                <label class="input">
-                                                                    <input class="form-control" name="bulanDibayar" maxlength="2">
-                                                                    <label class="note">
-                                                                        Bulan bonus dibayar
-                                                                    </label>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="control-label col-md-3" for="prepend">Bulan Bekerja (hingga)<font color="red">*</font></label>
+                                                <div class="col-md-9">
+                                                    <div class="row">
+                                                        <div class="col-sm-12">
+                                                            <label class="input">
+                                                                <input class="form-control" name="bulanBekerjaHingga" maxlength="4">
+                                                                <label class="note">
+                                                                    Bulan tamat bekerja
                                                                 </label>
-                                                            </div>
+                                                            </label>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="form-group">
-                                                    <label class="control-label col-md-3" for="prepend">Tahun Dibayar<font color="red">*</font></label>
-                                                    <div class="col-md-9">
-                                                        <div class="row">
-                                                            <div class="col-sm-12">
-                                                                <label class="input">
-                                                                    <input class="form-control" name="tahunDibayar" maxlength="4">
-                                                                    <label class="note">
-                                                                        Tahun bonus dibayar
-                                                                    </label>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="control-label col-md-3" for="prepend">Bulan Dibayar<font color="red">*</font></label>
+                                                <div class="col-md-9">
+                                                    <div class="row">
+                                                        <div class="col-sm-12">
+                                                            <label class="input">
+                                                                <input class="form-control" name="bulanDibayar" maxlength="2">
+                                                                <label class="note">
+                                                                    Bulan bonus dibayar
                                                                 </label>
-                                                            </div>
+                                                            </label>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </fieldset>
+                                            </div>
+                                            <div>
+                                                <input type="hidden" class="form-control" name="tahunDibayar" maxlength="4">
+                                            </div>
+                                        </fieldset>
 
                                             <div class="form-actions">
                                                 <div class="row">
@@ -153,7 +156,7 @@
                                                 <th>No Akaun Bank</th>
                                                 <th>No KWSP</th>
                                                 <th>Tarikh Lantikan</th>
-                                                @for (int m = ViewBag.MinBulan; m < ViewBag.MaxBulan; m++)
+                                                @for (int m = ViewBag.MinBulan; m <= ViewBag.MaxBulan; m++)
                                                 {
                                                     BonusSambilanMonthModel monthModel =
                                                         new BonusSambilanMonthModel
@@ -181,7 +184,7 @@
                                                     <td>@x.NoAkaunBank</td>
                                                     <td>@x.NoKWSP</td>
                                                     <td>@x.TarikhLantikanString</td>
-                                                    @for (int m = ViewBag.MinBulan; m < ViewBag.MaxBulan; m++)
+                                                    @for (int m = ViewBag.MinBulan; m <= ViewBag.MaxBulan; m++)
                                                     {
                                                         BonusSambilanMonthModel monthModel =
                                                             new BonusSambilanMonthModel
@@ -398,8 +401,10 @@
             var bulan = getParameterByName("month");
             var tahun = getParameterByName("year");
             var startMonth = getParameterByName("startmonth");
-            if (bulan != null && tahun != null) {
+            if (bulan != null) {
                 bulanDibayar.val(bulan);
+            }
+            if (tahun != null) {
                 tahunDibayar.val(tahun);
             }
             if (startMonth != null) {
@@ -500,11 +505,12 @@
 							"sTitle": "SmartAdmin_PDF",
 							"sPdfMessage": "SmartAdmin PDF Export",
 							"sPdfSize": "letter"
-						},
-						{
-							"sExtends": "print",
-							"sMessage": "Generated by SmartAdmin <i>(press Esc to close)</i>"
-						}
+                        }
+                        //,
+						//{
+						//	"sExtends": "print",
+						//	"sMessage": "Generated by SmartAdmin <i>(press Esc to close)</i>"
+						//}
 					],
 					"sSwfPath": "/Scripts/plugin/datatables/swf/copy_csv_xls_pdf.swf"
 				},

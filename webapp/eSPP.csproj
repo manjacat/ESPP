@@ -1698,6 +1698,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Helpers\DashRouteHandler.cs" />
+    <Compile Include="App_Helpers\ExcelHelper\BonusSambilanReport.cs" />
     <Compile Include="App_Helpers\ExcelHelper\BorangAReport.cs" />
     <Compile Include="App_Helpers\ExcelHelper\ExcelHelper.cs" />
     <Compile Include="App_Helpers\StringExtensions.cs" />

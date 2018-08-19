@@ -67,7 +67,8 @@ namespace eSPP.Controllers
         }
 
         public ActionResult Sejarah(ManageMessageId? message,
-            string HR_PEKERJA, string tahunbekerja, string bulanbekerja, string tahundibayar, string bulandibayar)
+            string HR_PEKERJA, string tahunbekerja, string bulanbekerja, 
+            string tahundibayar, string bulandibayar)
         {
             ViewBag.StatusMessage =
               message == ManageMessageId.Tambah ? "Permohonan Telah Berjaya Disimpan."
@@ -75,17 +76,48 @@ namespace eSPP.Controllers
               : message == ManageMessageId.Kemaskini ? "Permohonan Telah Berjaya Dikemaskini."
               : message == ManageMessageId.BayarTunggakan ? "Permohonan Telah Berjaya Dikemaskini."
               : "";
-
+            
             PageSejarahModel page = new PageSejarahModel();
             if (!string.IsNullOrEmpty(HR_PEKERJA))
             {
+                //if got No pekerja
                 page = new PageSejarahModel(HR_PEKERJA, tahunbekerja, bulanbekerja,
                           tahundibayar, bulandibayar);
+                page.jumlahhari = page.GetJumlahHari();
+                page.jumlahot = page.GetJumlahOT();
+            }
+            else
+            {
+                if(!string.IsNullOrEmpty(bulanbekerja) && !string.IsNullOrEmpty(bulandibayar)
+                    && !string.IsNullOrEmpty(tahunbekerja) && !string.IsNullOrEmpty(tahundibayar))
+                {
+                    try
+                    {
+                        page.bulanbekerja = Convert.ToInt32(bulanbekerja);
+                        page.bulandibayar = Convert.ToInt32(bulandibayar);
+                        page.tahunbekerja = Convert.ToInt32(tahunbekerja);
+                        page.tahundibayar = Convert.ToInt32(tahundibayar);
+                    }
+                    catch
+                    {
+
+                    }
+                }
             }
 
+            ViewBag.bulandibayar = GetBulanDropdown(page.bulandibayar);                
+            ViewBag.tunggakanbulandibayar = ViewBag.bulandibayar;
+            ViewBag.bulanbekerja = GetBulanDropdown(page.bulanbekerja);
+            ViewBag.tunggakanbulanbekerja = GetBulanDropdown(page.tunggakanbulanbekerja);
+            return View(page);
+        }
+
+        [NonAction]
+        private List<SelectListItem> GetBulanDropdown(int bulanSelected)
+        {
             List<SelectListItem> ddlbulan = new List<SelectListItem>
             {
-                new SelectListItem { Text = "JANUARI", Value = "1" },
+                new SelectListItem { Text = "Januari", Value = "1" },
                 new SelectListItem { Text = "FEBRUARI", Value = "2" },
                 new SelectListItem { Text = "MAC", Value = "3" },
                 new SelectListItem { Text = "APRIL", Value = "4" },
@@ -98,16 +130,24 @@ namespace eSPP.Controllers
                 new SelectListItem { Text = "NOVEMBER", Value = "11" },
                 new SelectListItem { Text = "DISEMBER", Value = "12" }
             };
-            ViewBag.bulandibayar =
-                new SelectList(ddlbulan, "Value", "Text", page.bulandibayar);
-            ViewBag.tunggakanbulandibayar = ViewBag.bulandibayar;
-            ViewBag.bulanbekerja =
-                new SelectList(ddlbulan, "Value", "Text", page.bulanbekerja);
-            ViewBag.tunggakanbulanbekerja =
-                new SelectList(ddlbulan, "Value", "Text", page.tunggakanbulanbekerja);
 
-            return View(page);
+            List<SelectListItem> outputDDL = new List<SelectListItem>();
+            foreach(SelectListItem bulan in ddlbulan)
+            {
+                SelectListItem m = new SelectListItem
+                {
+                    Text = bulan.Text,
+                    Value = bulan.Value
+                };
+                if(m.Value == bulanSelected.ToString())
+                {
+                    m.Selected = true;
+                }
+                outputDDL.Add(m);
+            }
+            return outputDDL;
         }
+
 
         [HttpPost]
         public ActionResult Sejarah(PageSejarahModel page, string Command)
@@ -118,6 +158,16 @@ namespace eSPP.Controllers
             if (Command == "Hantar")
             {
                 info = ManageMessageId.Tambah.ToString();
+                PageSejarahModel newPage = new PageSejarahModel();
+                return RedirectToAction("Sejarah",
+                new
+                {
+                    message = info,
+                    page.tahunbekerja,
+                    page.tahundibayar,
+                    page.bulandibayar,
+                    page.bulanbekerja
+                });
             }
             else if (Command == "Kemaskini")
             {
@@ -157,6 +207,15 @@ namespace eSPP.Controllers
                 int monthInt = Convert.ToInt32(month);
                 int yearInt = Convert.ToInt32(year);
                 list = BonusSambilanDetailModel.GetBonusSambilanDetailData(monthInt, yearInt);
+                bool isMuktamad = list.Select(m => m.IsMuktamad).FirstOrDefault();
+                if (isMuktamad)
+                {
+                    ViewBag.IsMuktamad = "true";
+                }
+                else
+                {
+                    ViewBag.IsMuktamad = string.Empty;
+                }
                 ViewBag.MinBulan = list.Select(x => x.MinBulan).Min();
                 ViewBag.MaxBulan = monthInt;
                 ViewBag.MaxTahun = yearInt;
@@ -246,12 +305,12 @@ namespace eSPP.Controllers
             return RedirectToAction("BonusSambilanDetail", new { month = bulanBonus, year = tahunBonus, message = outputMsg });
         }
 
-        public ActionResult TambahBonus(string month = "1", string year = "0", 
+        public ActionResult TambahBonus(string tahunDibayar, string month = "1", string year = "0", 
             string isTemp = "")
         {
             List<BonusSambilanDetailModel> bonus = new List<BonusSambilanDetailModel>();
             if (isTemp != "yes")
-            {                
+            {
                 return View(bonus);
             }
             else
@@ -269,15 +328,15 @@ namespace eSPP.Controllers
 
         [HttpPost]
         public ActionResult TambahBonus(int bulanBekerja, int bulanDibayar, 
-            int tahunDibayar, string Command)
+            int tahunDibayar, string bulanBekerjaHingga, string Command)
         {
             if(Command == "Tambah")
             {
                 //TODO add to HR_BONUS_SAMBILAN_DETAIL
                 ManageMessageId outputMsg = ManageMessageId.Tambah;
                 HR_BONUS_SAMBILAN_DETAIL.UpdateTambahBonus();
-                return RedirectToAction("BonusSambilanDetail",
-                    new { month = bulanDibayar, year = tahunDibayar, message = outputMsg });
+                return RedirectToAction("UrusBonus", "PengurusanKakitanganSambilan",
+                    new { month = bulanDibayar, tahunbekerja = tahunDibayar, message = outputMsg });
             }
             else if(Command == "Batal")
             {
@@ -294,12 +353,13 @@ namespace eSPP.Controllers
                 try
                 {
                     int startMonth = Convert.ToInt32(bulanBekerja);
+                    int endMonth = Convert.ToInt32(bulanBekerjaHingga);
                     int month = Convert.ToInt32(bulanDibayar);
                     int year = Convert.ToInt32(tahunDibayar);
                     ViewBag.MinBulan = startMonth;
-                    ViewBag.MaxBulan = month;
+                    ViewBag.MaxBulan = endMonth;
                     ViewBag.MaxTahun = year;
-                    bonus = BonusSambilanDetailModel.GetDetailsFromTransaksi(startMonth, month, year);
+                    bonus = BonusSambilanDetailModel.GetDetailsFromTransaksi(startMonth, month, year, endMonth);
                     if(bonus.Count() > 0)
                     {
                         HR_BONUS_SAMBILAN_DETAIL.InsertTambahBonus(bonus); //add to database
@@ -311,6 +371,29 @@ namespace eSPP.Controllers
                 }
                 return View(bonus);
             }            
+        }
+
+        public ActionResult PrintBonus(string bulanBonus, string tahunBonus)
+        {
+            try
+            {
+                int month = Convert.ToInt32(bulanBonus);
+                int year = Convert.ToInt32(tahunBonus);
+                IWorkbook workbook = BonusSambilanReport.GetReport(month, year);
+                // code to create workbook 
+                using (var exportData = new MemoryStream())
+                {
+                    workbook.Write(exportData);
+                    string saveAsFileName = string.Format("BonusSambilanReport-{0:d}.xlsx", DateTime.Now).Replace("/", "-");
+                    byte[] bytes = exportData.ToArray();
+                    return File(bytes, "application/vnd.ms-excel", saveAsFileName);
+                }
+            }
+            catch
+            {
+                return RedirectToAction("UrusBonus");
+            }
+
         }
     }
 }

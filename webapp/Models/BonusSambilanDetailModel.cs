@@ -46,7 +46,10 @@ namespace eSPP.Models
         public decimal? BonusDiterima { get; set; }
         public string Catatan { get; set; }
         public bool IsMuktamad { get; set; }
+
+        //new column sebab nak tengok bulan start dgn bulan end
         public int MinBulan { get; set; }
+        public int MaxBulan { get; set; }
 
         public static List<BonusSambilanDetailModel> GetBonusSambilanDetailData(int month, int year)
         {
@@ -84,6 +87,7 @@ namespace eSPP.Models
                 d.BonusDiterima = y.HR_BONUS_DITERIMA;
                 d.Catatan = y.HR_CATATAN;
                 d.MinBulan = y.HR_BULAN_START;
+                d.MaxBulan = y.HR_BULAN_END;
                 if (y.HR_MUKTAMAD > 0)
                 {
                     d.IsMuktamad = true;
@@ -105,12 +109,13 @@ namespace eSPP.Models
         /// <param name="year">tahun bonus dibayar</param>
         /// <returns>List BonusSambilanDetailModel</returns>
         public static List<BonusSambilanDetailModel> GetDetailsFromTransaksi
-            (int startMonth, int month, int year)
+            (int startMonth, int month, int year, int endMonth)
         {
             ApplicationDbContext db = new ApplicationDbContext();
             List<string> listHR_PEKERJA = db.HR_TRANSAKSI_SAMBILAN_DETAIL
                 .Where(s => s.HR_BULAN_DIBAYAR == month
-                && s.HR_BULAN_BEKERJA > startMonth
+                && s.HR_BULAN_BEKERJA >= startMonth
+                && s.HR_BULAN_BEKERJA <= endMonth
                 && s.HR_TAHUN == year).Select(s => s.HR_NO_PEKERJA).Distinct().ToList();
 
             List<BonusSambilanDetailModel> outputList = new List<BonusSambilanDetailModel>();
@@ -121,7 +126,8 @@ namespace eSPP.Models
                     db.HR_TRANSAKSI_SAMBILAN_DETAIL.
                     Where(x => x.HR_NO_PEKERJA == hr_pekerja
                     && x.HR_TAHUN == year
-                    && x.HR_BULAN_BEKERJA > startMonth
+                    && x.HR_BULAN_BEKERJA >= startMonth
+                    && x.HR_BULAN_BEKERJA <= endMonth
                     && x.HR_BULAN_DIBAYAR == month).ToList();
 
                 HR_MAKLUMAT_PERIBADI maklumat = db.HR_MAKLUMAT_PERIBADI
@@ -163,7 +169,8 @@ namespace eSPP.Models
                     .Where(c => c.HR_BULAN_BEKERJA == 12).Sum(c => c.HR_JUMLAH);
                 det.JumlahGaji = elaunlain.Sum(c => c.HR_JUMLAH);
                 det.MinBulan = startMonth;
-                int totalBulan = month - startMonth;
+                det.MaxBulan = endMonth;
+                int totalBulan = endMonth - startMonth + 1;
                 if (totalBulan > 0)
                 {
                     det.GajiPurata = det.JumlahGaji == null ?

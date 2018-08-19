@@ -136,11 +136,12 @@
                                             </label>
                                         </section>
                                         <section class="col col-lg-2 col-md-2 col-sm-12">
-                                            @Html.LabelFor(x => x.bulanbekerja)<font color="red">*</font>
+                                            @Html.LabelFor(x => x.bulanbekerja)<font color="red">*</font>                                            
                                         </section>
                                         <section class="col col-lg-2 col-md-2 col-sm-12">
-                                            <input type="hidden" name="bulanbekerja" value="" />
-                                            @Html.DropDownList("bulanbekerja", null, String.Empty, htmlAttributes: new { @class = "form-control" })
+                                            <input type="hidden" name="bulanbekerja" value="@Model.bulanbekerja" />
+                                            @Html.DropDownListFor(x => x.bulanbekerja,
+                                           ViewBag.bulanbekerja as SelectList, new { @class = "form-control" })
                                         </section>
                                     </div>
                                     <div class="row">
@@ -180,8 +181,9 @@
                                         </section>
                                         <section class="col col-lg-2 col-md-2 col-sm-12">
                                             <label class="input">
-                                                <input type="hidden" name="bulandibayar" value="" />
-                                                @Html.DropDownList("bulandibayar", null, String.Empty, htmlAttributes: new { @class = "form-control" })
+                                                <input type="hidden" name="bulandibayar" value="@Model.bulandibayar" />
+                                                @Html.DropDownListFor(x => x.bulandibayar,
+                                          ViewBag.bulandibayar as SelectList, new { @class = "form-control" })
                                             </label>
                                         </section>
                                     </div>
@@ -382,8 +384,7 @@
                                         </section>
                                         <section class="col col-lg-2 col-md-2 col-sm-12">
                                             <label class="input">
-                                                <input type="hidden" name="bulandibayar" value="" />
-                                                @Html.DropDownList("tunggakanbulandibayar", null, String.Empty, htmlAttributes: new { @class = "form-control", disabled = "disabled" })
+                                                @Html.DropDownList("tunggakanbulandibayar", null, String.Empty, htmlAttributes: new { @class = "form-control" })
                                                 @Html.HiddenFor(x => x.tunggakanbulandibayar)
                                             </label>
                                         </section>
@@ -574,7 +575,8 @@
                                     {
                                         <button type="submit" class="btn btn-success" id="Hantar" name="Command" value="Hantar"><i class="fa fa-plus"></i> Simpan</button>
                                     }
-                                    <button type="submit" class="btn btn-default" onclick="window.location.href('@Url.Action("transaksisambilan","transaksisambilan")')" id="Kembali" name="Command" value="Kembali"><i class="fa fa-refresh"></i> Kembali</button>
+                                    <a class="btn btn-default" href="@Url.Action("ListTransaksiSambilan","PengurusanKakitanganSambilan")" 
+                                       id="Kembali" name="Command" value="Kembali"><i class="fa fa-refresh"></i> Kembali</a>
                                 </footer>
                             }
                         </div>
@@ -685,22 +687,58 @@
         $(function () {
             //var selectedValue = parseInt($("select[name = 'bulanbekerja']").val()) + 1;
             //$('input[name="bulandibayar"]').val(selectedValue);
-            var selectedValue = parseInt($("select[name = 'bulanbekerja']").val());
-            $('input[name="bulanbekerja"]').val(selectedValue);
+            //var selectedValue = parseInt($("select[name = 'bulanbekerja']").val());
+            //$('input[name="bulanbekerja"]').val(selectedValue);
+            try {
+                var defaultValue = $('input[name="bulanbekerja"]').val();
+                $("select[name = 'bulanbekerja']").val(defaultValue);
+                var defaultValue2 = $('input[name="bulandibayar"]').val();
+                $("select[name = 'bulandibayar']").val(defaultValue2);
+
+                //change tunggakan value
+                if (parseInt(defaultValue) == 1) {
+                    defaultValue = 1;
+                    $('input[name="tunggakanbulanbekerja"]').val(defaultValue);
+                    $('select[name="tunggakanbulanbekerja"]').find('option[value="' + defaultValue + '"]').attr("selected", true);
+                    var tunggakanYear = $('input[name="tunggakantahundibayar"]').val();
+                    newTahun = parseInt(tunggakanYear) - 1;
+                    $('input[name="tunggakantahunbekerja"]').val(newTahun.toString());
+                }
+                else {
+                    defaultValue = parseInt(defaultValue) - 1;
+                    $('select[name="tunggakanbulanbekerja"]').find('option[value="' + defaultValue + '"]').attr("selected", true);
+                    $('input[name="tunggakanbulanbekerja"]').val(defaultValue);
+                }
+
+                $('select[name="tunggakanbulandibayar"]').find('option[value="' + defaultValue2 + '"]').attr("selected", true);
+                $('input[name="tunggakanbulandibayar"]').val(defaultValue2);
+            }
+            catch{
+
+            }
+
             $("select[name='bulanbekerja']").change(function () {
                 var selectedValue = parseInt($(this).val());
                 //$('select[name="bulanbekerja"]').find('option').removeAttr("selected");
                 $('select[name="bulanbekerja"]').find('option[value="' + selectedValue + '"]').attr("selected", true);
-                $('input[name="bulanbekerja"]').val(selectedValue);                
+                $('input[name="bulanbekerja"]').val(selectedValue);
+
+                //change tunggakan value
+                $('select[name="tunggakanbulanbekerja"]').find('option[value="' + selectedValue + '"]').attr("selected", true);
+                $('input[name="tunggakanbulanbekerja"]').val(selectedValue);
             });
 
             var selectValue = parseInt($("select[name = 'bulandibayar']").val());
             $('input[name="bulandibayar"]').val(selectValue);
+
             $("select[name='bulandibayar']").change(function () {
                 var selectedValue = parseInt($(this).val());
                 //$('select[name="bulandibayar"]').find('option').removeAttr("selected");
                 $('select[name="bulandibayar"]').find('option[value="' + selectedValue + '"]').attr("selected", true);
                 $('input[name="bulandibayar"]').val(selectedValue);
+
+                $('select[name="tunggakanbulandibayar"]').find('option[value="' + selectedValue + '"]').attr("selected", true);
+                $('input[name="tunggakanbulandibayar"]').val(selectedValue);
             });
             //TEMP DISABLE THIS
             //$("select[name='bulanbekerja']").change(function () {
@@ -714,6 +752,7 @@
             //        $('input[name="bulandibayar"]').val(selectedValue);
             //    }
             //});
+
             function pageload() {
                 $.ajax({
                     url: "../PengurusanKakitanganSambilan/Maklumat",

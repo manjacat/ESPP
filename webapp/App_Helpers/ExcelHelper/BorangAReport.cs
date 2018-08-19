@@ -59,7 +59,7 @@ namespace eSPP.App_Helpers.ExcelHelper
 
             ISheet sheet1 = workbook.CreateSheet("Sheet 1");
             int currentRow;
-            currentRow = SetHeader(workbook, sheet1, bulan, tahun);
+            currentRow = SetBorangAHeader(workbook, sheet1, bulan, tahun);
             currentRow = SetBayaran(workbook, sheet1, currentRow + 1);
             currentRow = SetMajikan(workbook, sheet1, currentRow + 2);
             currentRow = SetTableHeader(workbook, sheet1, currentRow + 2);
