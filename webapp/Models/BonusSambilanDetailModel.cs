@@ -15,13 +15,16 @@ namespace eSPP.Models
         public string NoAkaunBank { get; set; }
         public string NoKWSP { get; set; }
         public DateTime? TarikhLantikan { get; set; }
+        /// <summary>
+        /// returns TarikhLantikan in dd-MM-yyyy format
+        /// </summary>
         public string TarikhLantikanString
         {
             get
             {
                 if (TarikhLantikan != null)
                 {
-                    return string.Format("{0:dd-mm-yyyy}", TarikhLantikan);
+                    return string.Format("{0:dd-MM-yyyy}", TarikhLantikan);
                 }
                 else
                 {
@@ -48,7 +51,9 @@ namespace eSPP.Models
         public bool IsMuktamad { get; set; }
 
         //new column sebab nak tengok bulan start dgn bulan end
-        public int MinBulan { get; set; }
+        //berguna utk kira purata dan nak tengok bulan mana kita nak display kat report
+        //hide semua bulan yang di luar dari range MinBulan - MaxBulan
+        public int MinBulan { get; set; } 
         public int MaxBulan { get; set; }
 
         public static List<BonusSambilanDetailModel> GetBonusSambilanDetailData(int month, int year)
@@ -60,8 +65,10 @@ namespace eSPP.Models
             foreach (HR_BONUS_SAMBILAN_DETAIL y in tableList)
             {
                 BonusSambilanDetailModel d = new BonusSambilanDetailModel();
-                HR_MAKLUMAT_PERIBADI maklumat = db.HR_MAKLUMAT_PERIBADI.Where(m => m.HR_NO_PEKERJA == y.HR_NO_PEKERJA).FirstOrDefault();
-                HR_MAKLUMAT_PEKERJAAN kerja = db.HR_MAKLUMAT_PEKERJAAN.Where(m => m.HR_NO_PEKERJA == y.HR_NO_PEKERJA).FirstOrDefault();
+                HR_MAKLUMAT_PERIBADI maklumat = db.HR_MAKLUMAT_PERIBADI
+                    .Where(m => m.HR_NO_PEKERJA == y.HR_NO_PEKERJA).FirstOrDefault();
+                HR_MAKLUMAT_PEKERJAAN kerja = db.HR_MAKLUMAT_PEKERJAAN
+                    .Where(m => m.HR_NO_PEKERJA == y.HR_NO_PEKERJA).FirstOrDefault();
                 d.BulanBonus = y.HR_BULAN_BONUS;
                 d.TahunBonus = y.HR_TAHUN_BONUS;
                 d.Nama = maklumat.HR_NAMA_PEKERJA;

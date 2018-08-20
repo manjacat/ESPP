@@ -92,6 +92,20 @@ namespace eSPP.App_Helpers.ExcelHelper
             return bulanString;
         }
 
+        public static string GetBulanLongString(int bulan)
+        {
+            var associativeArray = new Dictionary<int?, string>() { { 1, "JANUARI" }, { 2, "FEBRUARI" }, { 3, "MAC" }, { 4, "APRIL" }, { 5, "MEI" }, { 6, "JUN" }, { 7, "JULAI" }, { 8, "OGOS" }, { 9, "SEPTEMBER" }, { 10, "OKTOBER" }, { 11, "NOVEMBER" }, { 12, "DISEMBER" } };            
+            string bulanString = "";
+            foreach (var m in associativeArray)
+            {
+                if (bulan == m.Key)
+                {
+                    return m.Value;
+                }
+            }
+            return bulanString;
+        }
+
         //row 0-4
         protected static int SetBorangAHeader(IWorkbook workbook, ISheet sheet1, int bulan, int tahun)
         {

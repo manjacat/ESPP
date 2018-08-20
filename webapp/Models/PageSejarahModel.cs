@@ -270,12 +270,14 @@ namespace eSPP.Models
             switch (command.ToLower())
             {
                 case ("hantar"):
-                    InsertHantar(db, agree, listkwsp, maklumatelaun, maklumatpotongan, maklumatcaruman, gajipokok, gajisehariot1);
+                    InsertHantar(db, agree, listkwsp, maklumatelaun, maklumatpotongan,
+                        maklumatcaruman, gajipokok, gajisehariot1);
                     TrailLog(emel, role,
                         emel.HR_NAMA_PEKERJA + " Telah menambah data untuk pekerja " + agree.HR_PEKERJA);
                     break;
                 case ("kemaskini"):
-                    InsertKemaskini(db, agree, listkwsp, maklumatelaun, maklumatpotongan, maklumatcaruman, gajipokok, gajisehariot1);
+                    InsertKemaskini(db, agree, listkwsp, maklumatelaun, maklumatpotongan,
+                        maklumatcaruman, gajipokok, gajisehariot1);
                     TrailLog(emel, role,
                         emel.HR_NAMA_PEKERJA + " Telah mengubah data untuk pekerja " + agree.HR_PEKERJA);
                     break;
@@ -284,7 +286,7 @@ namespace eSPP.Models
                     TrailLog(emel, role,
                         emel.HR_NAMA_PEKERJA + " Telah mengubah data untuk pekerja " + agree.HR_PEKERJA);
                     break;
-                default:                    
+                default:
                     break;
             }
             return agree;
@@ -443,57 +445,48 @@ namespace eSPP.Models
             List<HR_MAKLUMAT_ELAUN_POTONGAN> maklumatcaruman,
             decimal gajipokok, decimal gajisehariot1)
         {
-            foreach (var kwsp in listkwsp)
+            //instead of looping 401 records, a LINQ is used here to get the correct KWSP based on gaji pokok
+            var kwsp = listkwsp
+                .Where(s => gajipokok >= s.HR_UPAH_DARI
+                && gajipokok <= s.HR_UPAH_HINGGA).SingleOrDefault();
+            try
             {
-                if (gajipokok >= kwsp.HR_UPAH_DARI && gajipokok <= kwsp.HR_UPAH_HINGGA)
+                InsertHRSAMBILAN(db, agree);
+                InsertMAJIKANKWSP(db, agree, kwsp);
+                InsertPekerjaKSWP(db, agree, kwsp);
+                if (maklumatpotongan != null)
                 {
-                    try
-                    {
-                        InsertHRSAMBILAN(db, agree);
-                    }
-                    catch
-                    {
-
-                    }
-                    InsertMAJIKANKWSP(db, agree, kwsp);
-                    InsertPekerjaKSWP(db, agree, kwsp);
-
-                    if (maklumatpotongan != null)
-                    {
-                        InsertMAKLUMATPOTONGAN(db, agree, maklumatpotongan);
-                    }
-                    InsertELAUNOT(db, agree, gajisehariot1);
-                    InsertGAJIPEKERJA(db, agree);
-                    InsertMAKLUMATELAUN(db, agree, maklumatelaun);
+                    InsertMAKLUMATPOTONGAN(db, agree, maklumatpotongan);
                 }
+                InsertELAUNOT(db, agree, gajisehariot1);
+                InsertGAJIPEKERJA(db, agree);
+                InsertMAKLUMATELAUN(db, agree, maklumatelaun);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
             }
 
             if (agree.tunggakan == "Y")
             {
-                foreach (var kwsp in listkwsp)
-                {
-                    if (gajipokok >= kwsp.HR_UPAH_DARI && gajipokok <= kwsp.HR_UPAH_HINGGA)
-                    {
-                        try
-                        {
-                            InsertHRSAMBILAN(db, agree, true);
-                        }
-                        catch
-                        {
+                try
+                {                    
+                    InsertHRSAMBILAN(db, agree, true);
+                    InsertMAJIKANKWSP(db, agree, kwsp, true);
+                    InsertPekerjaKSWP(db, agree, kwsp, true);
 
-                        }
-                        InsertMAJIKANKWSP(db, agree, kwsp, true);
-                        InsertPekerjaKSWP(db, agree, kwsp, true);                        
-                       
-                        if (maklumatpotongan != null)
-                        {
-                            InsertMAKLUMATPOTONGAN(db, agree, maklumatpotongan, true);
-                        }
-                        InsertELAUNOT(db, agree, gajisehariot1, true);
-                        InsertGAJIPEKERJA(db, agree, true);
-                        InsertMAKLUMATELAUN(db, agree, maklumatelaun, true);
-                        InsertMAKLUMATCARUMAN(db, agree, maklumatcaruman, true);
+                    if (maklumatpotongan != null)
+                    {
+                        InsertMAKLUMATPOTONGAN(db, agree, maklumatpotongan, true);
                     }
+                    InsertELAUNOT(db, agree, gajisehariot1, true);
+                    InsertGAJIPEKERJA(db, agree, true);
+                    InsertMAKLUMATELAUN(db, agree, maklumatelaun, true);
+                    InsertMAKLUMATCARUMAN(db, agree, maklumatcaruman, true);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
                 }
             }
 
@@ -502,8 +495,10 @@ namespace eSPP.Models
 
         #region Insert Into HR SAMBILAN DETAIL
 
-        private static void InsertHRSAMBILAN(ApplicationDbContext db, PageSejarahModel agree, bool isTunggakan = false)
+        private static void InsertHRSAMBILAN(ApplicationDbContext db, PageSejarahModel agree, 
+            bool isTunggakan = false)
         {
+            //if bukan tunggakan
             if (!isTunggakan)
             {
                 HR_TRANSAKSI_SAMBILAN sambilan = db.HR_TRANSAKSI_SAMBILAN
@@ -514,19 +509,27 @@ namespace eSPP.Models
                        && s.HR_TAHUN_BEKERJA == agree.tahunbekerja).FirstOrDefault();
                 if (sambilan == null)
                 {
-                    sambilan = new HR_TRANSAKSI_SAMBILAN
+                    try
                     {
-                        HR_NO_PEKERJA = agree.HR_PEKERJA,
-                        HR_BULAN_BEKERJA = agree.bulanbekerja,
-                        HR_TAHUN_BEKERJA = agree.tahunbekerja,
-                        HR_TAHUN = agree.tahundibayar,
-                        HR_BULAN_DIBAYAR = agree.bulandibayar
-                    };
-                    db.HR_TRANSAKSI_SAMBILAN.Add(sambilan);
-                    db.SaveChanges();
+                        sambilan = new HR_TRANSAKSI_SAMBILAN
+                        {
+                            HR_NO_PEKERJA = agree.HR_PEKERJA,
+                            HR_BULAN_BEKERJA = agree.bulanbekerja,
+                            HR_TAHUN_BEKERJA = agree.tahunbekerja,
+                            HR_TAHUN = agree.tahundibayar,
+                            HR_BULAN_DIBAYAR = agree.bulandibayar
+                        };
+                        db.HR_TRANSAKSI_SAMBILAN.Add(sambilan);
+                        db.SaveChanges();
+                    }
+                    catch
+                    {
+
+                    }
+                    
                 }
             }
-            else
+            else //if tunggakan
             {
                 HR_TRANSAKSI_SAMBILAN sambilan = db.HR_TRANSAKSI_SAMBILAN
                        .Where(s => s.HR_NO_PEKERJA == agree.HR_PEKERJA
@@ -536,16 +539,26 @@ namespace eSPP.Models
                        && s.HR_TAHUN_BEKERJA == agree.tunggakantahunbekerja).FirstOrDefault();
                 if (sambilan == null)
                 {
-                    sambilan = new HR_TRANSAKSI_SAMBILAN
+                    //this try/catch block is to prevent system crashing 
+                    //when we try to "Tambah" a new tunggakan for a pekerja.
+                    //this will ensure all other data is inserted to HR_TRANSAKSI_SAMBILAN_DETAIL later.
+                    try
                     {
-                        HR_NO_PEKERJA = agree.HR_PEKERJA,
-                        HR_BULAN_BEKERJA = agree.tunggakanbulanbekerja,
-                        HR_TAHUN_BEKERJA = agree.tunggakantahunbekerja,
-                        HR_TAHUN = agree.tunggakantahundibayar,
-                        HR_BULAN_DIBAYAR = agree.tunggakanbulandibayar
-                    };
-                    db.HR_TRANSAKSI_SAMBILAN.Add(sambilan);
-                    db.SaveChanges();
+                        sambilan = new HR_TRANSAKSI_SAMBILAN
+                        {
+                            HR_NO_PEKERJA = agree.HR_PEKERJA,
+                            HR_BULAN_BEKERJA = agree.tunggakanbulanbekerja,
+                            HR_BULAN_DIBAYAR = agree.tunggakanbulandibayar,
+                            HR_TAHUN_BEKERJA = agree.tunggakantahunbekerja,
+                            HR_TAHUN = agree.tunggakantahundibayar
+                        };
+                        db.HR_TRANSAKSI_SAMBILAN.Add(sambilan);
+                        db.SaveChanges();
+                    }
+                    catch
+                    {
+
+                    }                    
                 }
             }
 
@@ -890,7 +903,7 @@ namespace eSPP.Models
                     db.SaveChanges();
                 }
             }
-          
+
         }
 
         private static void InsertGAJIPEKERJA(ApplicationDbContext db, PageSejarahModel agree, bool isTunggakan = false)
@@ -972,7 +985,7 @@ namespace eSPP.Models
                     db.HR_TRANSAKSI_SAMBILAN_DETAIL.Add(gajipekerja);
                     db.SaveChanges();
                 }
-            }          
+            }
         }
 
         private static void InsertMAKLUMATELAUN(ApplicationDbContext db, PageSejarahModel agree,
@@ -1058,7 +1071,7 @@ namespace eSPP.Models
                     }
                 }
             }
-            
+
         }
 
         private static void InsertMAKLUMATCARUMAN(ApplicationDbContext db, PageSejarahModel agree, List<HR_MAKLUMAT_ELAUN_POTONGAN> maklumatcaruman,
@@ -1145,7 +1158,7 @@ namespace eSPP.Models
                         db.SaveChanges();
                     }
                 }
-            }            
+            }
         }
 
         #endregion

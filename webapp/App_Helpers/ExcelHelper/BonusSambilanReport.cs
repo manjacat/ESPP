@@ -73,9 +73,11 @@ namespace eSPP.App_Helpers.ExcelHelper
             int year = printData.Select(x => x.TahunBonus).FirstOrDefault();
             int monthStart = printData.Select(x => x.MinBulan).FirstOrDefault();
             int monthEnd = printData.Select(x => x.MaxBulan).FirstOrDefault();
+            int monthDibayar = printData.Select(x => x.BulanBonus).FirstOrDefault();
             int monthDiff = monthEnd - monthStart;
 
-            string title = string.Format("BONUS DITERIMA TAHUN {0}", year);
+            string title = string.Format("BONUS DIBAYAR PADA {0} {1}",
+                GetBulanLongString(monthDibayar).ToUpper(), year);
             nCell.SetCellValue(title);
 
             //merge all column in title
