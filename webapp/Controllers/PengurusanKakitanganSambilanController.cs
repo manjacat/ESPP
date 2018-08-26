@@ -59,57 +59,73 @@ namespace eSPP.Controllers
             ViewBag.bulantahunbekerja = bulantahunbekerja;
             ViewBag.bulantahundibayar = bulantahundibayar;
 
-            string[] cbulantahunbekerja = bulantahunbekerja.Split('/');
-            string[] cbulantahundibayar = bulantahundibayar.Split('/');
-
-            int[] inserttahunbulannotis = Array.ConvertAll(cbulantahunbekerja, int.Parse);
-            int[] inserttahunbulanbonus = Array.ConvertAll(cbulantahundibayar, int.Parse);
-
-            for (int i = 0; i < inserttahunbulannotis.Length; i++)
+            try
             {
-                var select1 = inserttahunbulannotis.ElementAt(i);
-                var select2 = inserttahunbulanbonus.ElementAt(i);
+                string[] cbulantahunbekerja = bulantahunbekerja.Split('/');
+                string[] cbulantahundibayar = bulantahundibayar.Split('/');
 
-                var bulantahunbulannotis = inserttahunbulannotis[0];
-                var tahuntahunbulannotis = inserttahunbulannotis[1];
-                var bulandari = inserttahunbulanbonus.ElementAt(0);
-                var tahundari = inserttahunbulanbonus.ElementAt(1);
+                int[] inserttahunbulannotis = Array.ConvertAll(cbulantahunbekerja, int.Parse);
+                int[] inserttahunbulanbonus = Array.ConvertAll(cbulantahundibayar, int.Parse);
 
-                var tarikhdari = "01/" + bulantahunbulannotis + "/" + tahuntahunbulannotis;
-                var tarikhhingga = "01/" + bulandari + "/" + tahundari;
-                var datedari = Convert.ToDateTime(tarikhdari);
-                var datehingga = Convert.ToDateTime(tarikhhingga);
-
-                var diff = ((datehingga.Year - datedari.Year) * 12) + datehingga.Month - datedari.Month;
-
-                var dates = new List<DateTime>();
-
-                for (var dt = datedari; dt <= datehingga; dt = dt.AddMonths(1))
+                for (int i = 0; i < inserttahunbulannotis.Length; i++)
                 {
-                    dates.Add(dt);
-                }
+                    var select1 = inserttahunbulannotis.ElementAt(i);
+                    var select2 = inserttahunbulanbonus.ElementAt(i);
 
-                List<HR_TRANSAKSI_SAMBILAN_DETAIL> sambilan = db.HR_TRANSAKSI_SAMBILAN_DETAIL.AsEnumerable().Where(s => s.HR_KOD_IND == "G" && (Convert.ToDateTime("01/" + s.HR_BULAN_BEKERJA + "/" + s.HR_TAHUN_BEKERJA) >= datedari) && (Convert.ToDateTime("01/" + s.HR_BULAN_BEKERJA + "/" + s.HR_TAHUN_BEKERJA) <= datehingga)).ToList();
+                    var bulantahunbulannotis = inserttahunbulannotis[0];
+                    var tahuntahunbulannotis = inserttahunbulannotis[1];
+                    var bulandari = inserttahunbulanbonus.ElementAt(0);
+                    var tahundari = inserttahunbulanbonus.ElementAt(1);
 
-                //List<HR_TRANSAKSI_SAMBILAN_DETAIL> sambilan = db.HR_TRANSAKSI_SAMBILAN_DETAIL.Where(s => s.HR_BULAN_BEKERJA == bulantahunbulannotis && s.HR_TAHUN_BEKERJA == tahuntahunbulannotis && s.HR_BULAN_DIBAYAR == bulandari && s.HR_TAHUN == tahundari && s.HR_KOD_IND == "G").ToList();
+                    var tarikhdari = "01/" + bulantahunbulannotis + "/" + tahuntahunbulannotis;
+                    var tarikhhingga = "01/" + bulandari + "/" + tahundari;
+                    var datedari = Convert.ToDateTime(tarikhdari);
+                    var datehingga = Convert.ToDateTime(tarikhhingga);
 
-                foreach (var item in sambilan)
-                {
-                    HR_MAKLUMAT_PERIBADI peribadi = db.HR_MAKLUMAT_PERIBADI.Include(s => s.HR_MAKLUMAT_PEKERJAAN).Where(s => s.HR_NO_PEKERJA == item.HR_NO_PEKERJA).SingleOrDefault();
+                    var diff = ((datehingga.Year - datedari.Year) * 12) + datehingga.Month - datedari.Month;
 
-                    AgreementModels agree = new AgreementModels();
-                    agree.HR_NO_PEKERJA = item.HR_NO_PEKERJA;
-                    agree.HR_NAMA_PEKERJA = peribadi.HR_NAMA_PEKERJA;
-                    agree.HR_NO_KPBARU = peribadi.HR_NO_KPBARU;
-                    agree.LIST_HR_BULAN_BEKERJA = bulantahunbulannotis;
-                    agree.LIST_HR_TAHUN = tahuntahunbulannotis;
-                    agree.LIST_HR_BULAN_DIBAYAR = bulandari;
-                    agree.LIST_HR_TAHUN_DIBAYAR = tahundari;
-                    agree.MUKTAMAD = item.HR_MUKTAMAD;
-                    agreelist.Add(agree);
+                    var dates = new List<DateTime>();
+
+                    for (var dt = datedari; dt <= datehingga; dt = dt.AddMonths(1))
+                    {
+                        dates.Add(dt);
+                    }
+
+                    List<HR_TRANSAKSI_SAMBILAN_DETAIL> sambilan = db.HR_TRANSAKSI_SAMBILAN_DETAIL.AsEnumerable()
+                        .Where(s => s.HR_KOD_IND == "G"
+                        //&& (Convert.ToDateTime("01/" + s.HR_BULAN_BEKERJA + "/" + s.HR_TAHUN_BEKERJA) >= datedari) 
+                        //&& (Convert.ToDateTime("01/" + s.HR_BULAN_BEKERJA + "/" + s.HR_TAHUN_BEKERJA) <= datehingga)).ToList();
+                        && s.HR_BULAN_BEKERJA == datedari.Month
+                        && s.HR_TAHUN_BEKERJA == datedari.Year
+                        && s.HR_BULAN_DIBAYAR == datehingga.Month
+                        && s.HR_TAHUN == datehingga.Year)
+                        .ToList();
+
+                        //List<HR_TRANSAKSI_SAMBILAN_DETAIL> sambilan = db.HR_TRANSAKSI_SAMBILAN_DETAIL.Where(s => s.HR_BULAN_BEKERJA == bulantahunbulannotis && s.HR_TAHUN_BEKERJA == tahuntahunbulannotis && s.HR_BULAN_DIBAYAR == bulandari && s.HR_TAHUN == tahundari && s.HR_KOD_IND == "G").ToList();
+
+                    foreach (var item in sambilan)
+                    {
+                        HR_MAKLUMAT_PERIBADI peribadi = db.HR_MAKLUMAT_PERIBADI.Include(s => s.HR_MAKLUMAT_PEKERJAAN).Where(s => s.HR_NO_PEKERJA == item.HR_NO_PEKERJA).SingleOrDefault();
+
+                        AgreementModels agree = new AgreementModels();
+                        agree.HR_NO_PEKERJA = item.HR_NO_PEKERJA;
+                        agree.HR_NAMA_PEKERJA = peribadi.HR_NAMA_PEKERJA;
+                        agree.HR_NO_KPBARU = peribadi.HR_NO_KPBARU;
+                        agree.LIST_HR_BULAN_BEKERJA = bulantahunbulannotis;
+                        agree.LIST_HR_TAHUN = tahuntahunbulannotis;
+                        agree.LIST_HR_BULAN_DIBAYAR = bulandari;
+                        agree.LIST_HR_TAHUN_DIBAYAR = tahundari;
+                        agree.MUKTAMAD = item.HR_MUKTAMAD;
+                        agreelist.Add(agree);
+                    }
+                    return PartialView("_ListTransaksiPartial", agreelist.GroupBy(s => new { s.HR_NO_PEKERJA, s.HR_NAMA_PEKERJA }).Select(s => s.FirstOrDefault()));
                 }
             }
-            return PartialView("_ListTransaksiPartial", agreelist.GroupBy(s => new { s.HR_NO_PEKERJA, s.HR_NAMA_PEKERJA }).Select(s => s.FirstOrDefault()));
+            catch
+            {
+                
+            }
+            return PartialView("_ListTransaksiPartial");
         }
 
         [HttpPost]
@@ -1296,10 +1312,11 @@ namespace eSPP.Controllers
                             kerjaelaun.POTONGANSOCSO = kwsp.HR_CARUMAN_PEKERJA;
                         }
                     }
-                    kerjaelaun.GAJIBASIC = gajipokok.Value.ToString("0.00");
-                    kerjaelaun.GAJIBERSIH = gajipokok + sum + sum1 + sum2 - sum3;
+                    kerjaelaun.GAJIBASIC = string.Format("{0:0.00}", gajipokok);
+                    decimal gajibersih = Convert.ToDecimal(gajipokok + sum + sum1 + sum2 - sum3);
+                    kerjaelaun.GAJIBERSIH = Math.Round(gajibersih,2);
                     decimal? gajiper3 = gajipokok / 3;
-                    kerjaelaun.GAJIPER3 = gajiper3.Value.ToString("0.00");
+                    kerjaelaun.GAJIPER3 = string.Format("{0:0.00}", gajiper3);
                     kerjaelaun.TUNGGAKANIND = tunggakan.Select(x => x.HR_TUNGGAKAN_IND).FirstOrDefault();
                 }
                 return Json(kerjaelaun, JsonRequestBehavior.AllowGet);
@@ -2910,36 +2927,7 @@ namespace eSPP.Controllers
             if (tahun > 0)
             {
                 ViewBag.Tahun = tahun;
-                List<BonusSambilanMonthModel> list = new List<BonusSambilanMonthModel>();
-                //MonthModel m = new MonthModel();
-
-                int counter = 1;
-                for (int i = 1; i <= 12; i++)
-                {
-                    //List<HR_TRANSAKSI_SAMBILAN_DETAIL> detail =
-                    //    db.HR_TRANSAKSI_SAMBILAN_DETAIL.Where
-                    //    (s => s.HR_KOD == "GAJPS" && s.HR_TAHUN == tahun && s.HR_BULAN_DIBAYAR == i).ToList();
-                    //detail.Sort((x, y) => x.HR_BULAN_BEKERJA.CompareTo(y.HR_BULAN_BEKERJA));
-
-                    List<HR_BONUS_SAMBILAN_DETAIL> detail =
-                        db.HR_BONUS_SAMBILAN_DETAIL.Where
-                        (s => s.HR_TAHUN_BONUS == tahun
-                        && s.HR_BULAN_BONUS == i
-                        && s.HR_STATUS == 1).ToList();
-
-
-                    BonusSambilanMonthModel m = new BonusSambilanMonthModel();
-                    m.MonthNumber = i;
-                    m.MonthValue = detail.Count();
-                    
-                    if(m.MonthValue > 0)
-                    {
-                        m.Nombor = counter;
-                        counter++;
-                        list.Add(m);
-                    }
-                }
-
+                List<BonusSambilanMonthModel> list = BonusSambilanMonthModel.GetBonusByYear(tahun);
                 return View(list);
             }
 

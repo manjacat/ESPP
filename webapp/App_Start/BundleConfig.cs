@@ -25,7 +25,8 @@ namespace eSPP
                 "~/scripts/plugin/bootstrap-progressbar/bootstrap-progressbar.min.js",
                 "~/scripts/plugin/msie-fix/jquery.mb.browser.min.js",
                 "~/scripts/plugin/fastclick/fastclick.min.js",
-                "~/scripts/app.min.js"));
+                "~/scripts/app.min.js",
+                "~/scripts/jquery-confirm/jquery-confirm.min.js")); //jquery confirm js
 
             bundles.Add(new ScriptBundle("~/scripts/full-calendar").Include(
                 "~/scripts/plugin/moment/moment.min.js",

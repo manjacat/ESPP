@@ -105,6 +105,9 @@ namespace eSPP.Models
                 }
                 outputList.Add(d);
             }
+            //sort by nama
+            outputList = outputList.OrderBy(x => x.Nama).ToList();
+
             return outputList;
         }
 
@@ -186,6 +189,8 @@ namespace eSPP.Models
                 det.IsMuktamad = false;
                 outputList.Add(det);
             }
+            //sort by Nama
+            outputList = outputList.OrderBy(x => x.Nama).ToList();
             return outputList;
         }
     }

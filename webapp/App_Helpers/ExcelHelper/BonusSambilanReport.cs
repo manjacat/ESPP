@@ -243,7 +243,18 @@ namespace eSPP.App_Helpers.ExcelHelper
                 }
                 else if (kcol == colStart_monthDiff + 2)
                 {
-                    nCell.SetCellValue(data.BonusDiterima.ToString());
+                    try
+                    {
+                        if(data.BonusDiterima != null)
+                        {
+                            //always show 2 dec places
+                            nCell.SetCellValue(data.BonusDiterima.Value.ToString("0.00"));
+                        }
+                    }
+                    catch
+                    {
+                        nCell.SetCellValue("0.00");
+                    }
                 }
                 else if (kcol == colStart_monthDiff + 3)
                 {

@@ -85,7 +85,7 @@
                                                     <div class="row">
                                                         <div class="col-sm-12">
                                                             <label class="input">
-                                                                <input class="form-control" name="bulanBekerja" maxlength="2">
+                                                                <input class="form-control" name="bulanBekerja" maxlength="2" placeholder="--">
                                                                 <label class="note">
                                                                     Bulan mula bekerja
                                                                 </label>
@@ -100,7 +100,7 @@
                                                     <div class="row">
                                                         <div class="col-sm-12">
                                                             <label class="input">
-                                                                <input class="form-control" name="bulanBekerjaHingga" maxlength="4">
+                                                                <input class="form-control" name="bulanBekerjaHingga" maxlength="2" placeholder="--">
                                                                 <label class="note">
                                                                     Bulan tamat bekerja
                                                                 </label>
@@ -115,7 +115,7 @@
                                                     <div class="row">
                                                         <div class="col-sm-12">
                                                             <label class="input">
-                                                                <input class="form-control" name="bulanDibayar" maxlength="2">
+                                                                <input class="form-control" name="bulanDibayar" maxlength="2" placeholder="--">
                                                                 <label class="note">
                                                                     Bulan bonus dibayar
                                                                 </label>
@@ -240,7 +240,7 @@
                                                             {
                                                                 <!-- bonus diterima -->
                                                                 <input type="button" class="btn btn-default" name="btnBonus"
-                                                                       value="0"
+                                                                       value="0.00"
                                                                        data-month="@x.BulanBonus.ToString("D2")"
                                                                        data-year="@x.TahunBonus.ToString()"
                                                                        data-pekerja="@x.NoPekerja" />
@@ -249,7 +249,7 @@
                                                             {
                                                                 <!-- bonus diterima -->
                                                                 <input type="button" class="btn btn-default" name="btnBonus"
-                                                                       value="@x.BonusDiterima"
+                                                                       value="@x.BonusDiterima.Value.ToString("0.00")"
                                                                        data-month="@x.BulanBonus.ToString("D2")"
                                                                        data-year="@x.TahunBonus.ToString()"
                                                                        data-pekerja="@x.NoPekerja" />

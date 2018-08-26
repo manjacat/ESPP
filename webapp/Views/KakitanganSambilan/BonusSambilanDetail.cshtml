@@ -211,7 +211,8 @@
                                                     <td>
                                                         @if (x.IsMuktamad)
                                                         {
-                                                            <span>@x.BonusDiterima</span>
+                                                            decimal mybonus = x.BonusDiterima == null ? 0 : Convert.ToDecimal(x.BonusDiterima);
+                                                            <span>@mybonus.ToString("0.00")</span>
                                                         }
                                                         else
                                                         {
@@ -219,16 +220,17 @@
                                                             {
                                                                 <!-- bonus diterima -->
                                                                 <input type="button" class="btn btn-default" name="btnBonus"
-                                                                       value="0"
+                                                                       value="0.00"
                                                                        data-month="@x.BulanBonus.ToString("D2")"
                                                                        data-year="@x.TahunBonus.ToString()"
                                                                        data-pekerja="@x.NoPekerja" />
                                                             }
                                                             else
                                                             {
+                                                                decimal mybonus = x.BonusDiterima == null ? 0 : Convert.ToDecimal(x.BonusDiterima);
                                                                 <!-- bonus diterima -->
                                                                 <input type="button" class="btn btn-default" name="btnBonus"
-                                                                       value="@x.BonusDiterima"
+                                                                       value="@x.BonusDiterima.Value.ToString("0.00")"
                                                                        data-month="@x.BulanBonus.ToString("D2")"
                                                                        data-year="@x.TahunBonus.ToString()"
                                                                        data-pekerja="@x.NoPekerja" />
@@ -273,6 +275,14 @@
                                 }
                             </div>
                         </div>
+                        <footer>
+                            <a class="btn btn-default pull-right" href="@Url.Action("UrusBonus","PengurusanKakitanganSambilan",
+                                                                    new {
+                                                                        tahunbekerja = ViewBag.MaxTahun.ToString()
+                                                                    })"
+                               id="Kembali" name="Command" value="Kembali"><i class="fa fa-refresh"></i>Kembali</a>
+                        </footer>
+                        <br/>
                     </div>
                     <!-- end widget content -->
 
@@ -334,9 +344,31 @@
             KlikBonus();
             KlikCatatan();
             $("#btn_muktamad").on("click", function () {
-                MuktamadAll();
+                return ConfirmMe();
+                //MuktamadAll();
             });
         })
+
+        //confirmation modal utk Muktamad all
+        function ConfirmMe() {
+            $.confirm({
+                title: 'Muktamad',
+                content: 'Anda pasti hendak muktamad transaksi ini?',
+                buttons: {
+                    Muktamad: function () {
+                        var maxBulan = $("input[name='maxBulan']").val();
+                        var maxTahun = $("input[name='maxTahun']").val();
+                        var redirectUrl = '../../KakitanganSambilan/UpdateMuktamad?'
+                            + '&bulanBonus=' + maxBulan
+                            + '&tahunBonus=' + maxTahun;
+                        window.location.replace(redirectUrl);
+                    },
+                    Kembali: function () {
+                        console.log('close');
+                    }
+                }
+            });
+        }
 
         function KlikBonus() {
             var bonusDialog = $('#dmessage1').dialog({
@@ -432,10 +464,7 @@
             var maxBulan = $("input[name='maxBulan']").val();
             var maxTahun = $("input[name='maxTahun']").val();
             if (muktamad.length == 0) {
-                $('div.muktamad').after('<a name="btn_muktamad" id="btn_muktamad" class="btn btn-warning pull-right hidden-mobile" '
-                    + 'href="../../KakitanganSambilan/UpdateMuktamad?'
-                    + '&bulanBonus=' + maxBulan
-                    + '&tahunBonus=' + maxTahun + '">'
+                $('div.muktamad').after('<a name="btn_muktamad" id="btn_muktamad" class="btn btn-warning pull-right hidden-mobile">'
                     + '<span style="color:#FFF"><span class="fa fa-plus"></span> Muktamad</span></a>');
             }
             else {

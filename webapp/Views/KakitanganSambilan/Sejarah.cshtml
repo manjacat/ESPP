@@ -568,14 +568,20 @@
                                     }
                                     else if (!string.IsNullOrEmpty(Model.HR_PEKERJA))
                                     {
-                                        <button type="submit" class="btn btn-warning" id="Muktamad" name="Command" value="Muktamad"><i class="fa fa-send"></i> Muktamad</button>
+                                        <button type="button" class="btn btn-warning" id="Muktamad" name="Command" value="Muktamad" onclick="ConfirmMe();"><i class="fa fa-send"></i> Muktamad</button>
                                         <button type="submit" class="btn btn-primary" id="Kemaskini" name="Command" value="Kemaskini"><i class="fa fa-pencil-square"></i> Kemaskini</button>
                                     }
                                     else
                                     {
                                         <button type="submit" class="btn btn-success" id="Hantar" name="Command" value="Hantar"><i class="fa fa-plus"></i> Simpan</button>
                                     }
-                                    <a class="btn btn-default" href="@Url.Action("ListTransaksiSambilan","PengurusanKakitanganSambilan")" 
+                                    <a class="btn btn-default" href="@Url.Action("ListTransaksiSambilan","PengurusanKakitanganSambilan",
+                                                                    new {
+                                                                        month1 = Model.bulanbekerja.ToString().PadLeft(2,'0'),
+                                                                        year1 = Model.tahunbekerja.ToString(),
+                                                                        month2 = Model.bulandibayar.ToString().PadLeft(2,'0'),
+                                                                        year2 = Model.tahunbekerja.ToString(),
+                                                                    })" 
                                        id="Kembali" name="Command" value="Kembali"><i class="fa fa-refresh"></i> Kembali</a>
                                 </footer>
                             }
@@ -604,6 +610,7 @@
         </script>
     }
     <script type="text/javascript">
+        var clickOffConfirmed = false;
         var disableType = $("[data-function='disable']");
         disableType.keypress(function (e) {
             return false
@@ -774,6 +781,12 @@
                             $.ajax({
                                 url: "../PengurusanKakitanganSambilan/Overtime",
                                 data: { "HR_PEKERJA": $("#HR_PEKERJA").val(), "jumlahhari": $("#jumlahhari").val(), "jumlahot": $("#jumlahot").val() },
+                                //data: {
+                                //    "HR_PEKERJA": $("#HR_PEKERJA").val(), "jumlahhari": $("#jumlahhari").val(), "jumlahot": $("#jumlahot").val(),
+                                //    "bulanbekerja": $("#bulanbekerja").val(),
+                                //    "tahunbekerja": $("#tahunbekerja").val(),
+                                //    "bulandibayar": $("#bulandibayar").val(),
+                                //    "tahundibayar": $("#tahundibayar").val()},
                                 contentType: "application/json; charset=utf-8",
                                 type: 'GET',
                                 dataType: "json",
@@ -1020,6 +1033,23 @@
                 $('#InfoModal').modal('hide');
             });
         });
+
+        //confirmation modal utk Muktamad all
+        function ConfirmMe() {
+            $.confirm({
+                title: 'Muktamad',
+                content: 'Anda pasti hendak muktamad transaksi ini?',
+                buttons: {
+                    Muktamad: function () {
+                        //$.alert('Pasti');
+                        document.getElementById("smart-form-register").submit();
+                    },
+                    Kembali: function () {
+                        console.log('close');
+                    }
+                }
+            });
+        }
 
     </script>
 

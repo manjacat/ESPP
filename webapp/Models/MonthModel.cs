@@ -23,8 +23,13 @@ namespace eSPP.Models
 
     public class BonusSambilanMonthModel
     {
+        public BonusSambilanMonthModel()
+        {
+            IsMuktamad = false;
+        }
         public int Nombor { get; set; }
         public int MonthNumber { get; set; }
+        public bool IsMuktamad { get; set; }
 
         public string MonthName
         {
@@ -77,6 +82,44 @@ namespace eSPP.Models
             }
         }
         public int MonthValue { get; set; }
+
+        public static List<BonusSambilanMonthModel> GetBonusByYear(int tahun)
+        {
+            ApplicationDbContext db = new ApplicationDbContext();
+            List<BonusSambilanMonthModel> list = new List<BonusSambilanMonthModel>();
+            //MonthModel m = new MonthModel();
+
+            int counter = 1;
+            for (int i = 1; i <= 12; i++)
+            {
+                //List<HR_TRANSAKSI_SAMBILAN_DETAIL> detail =
+                //    db.HR_TRANSAKSI_SAMBILAN_DETAIL.Where
+                //    (s => s.HR_KOD == "GAJPS" && s.HR_TAHUN == tahun && s.HR_BULAN_DIBAYAR == i).ToList();
+                //detail.Sort((x, y) => x.HR_BULAN_BEKERJA.CompareTo(y.HR_BULAN_BEKERJA));
+
+                List<HR_BONUS_SAMBILAN_DETAIL> detail =
+                    db.HR_BONUS_SAMBILAN_DETAIL.Where
+                    (s => s.HR_TAHUN_BONUS == tahun
+                    && s.HR_BULAN_BONUS == i
+                    && s.HR_STATUS == 1).ToList();
+
+
+                BonusSambilanMonthModel m = new BonusSambilanMonthModel();
+                m.MonthNumber = i;
+                m.MonthValue = detail.Count();
+                int muktamadInt = detail.Select(s => s.HR_MUKTAMAD).FirstOrDefault();
+                m.IsMuktamad = muktamadInt == 0 ? false : true;
+
+                if (m.MonthValue > 0)
+                {
+                    m.Nombor = counter;
+                    counter++;
+                    list.Add(m);
+                }
+            }
+
+            return list;
+        }
     }
 
 }

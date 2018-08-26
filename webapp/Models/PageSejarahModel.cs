@@ -267,6 +267,11 @@ namespace eSPP.Models
             var role1 = db.UserRoles.Where(d => d.UserId == tbl.Id).SingleOrDefault();
             var role = db.Roles.Where(e => e.Id == role1.RoleId).SingleOrDefault();
 
+            if (string.IsNullOrEmpty(command))
+            {
+                command = "muktamad";
+            }
+
             switch (command.ToLower())
             {
                 case ("hantar"):
@@ -284,7 +289,7 @@ namespace eSPP.Models
                 case ("muktamad"):
                     InsertMuktamad(db, agree);
                     TrailLog(emel, role,
-                        emel.HR_NAMA_PEKERJA + " Telah mengubah data untuk pekerja " + agree.HR_PEKERJA);
+                        emel.HR_NAMA_PEKERJA + " Telah mengubah data untuk pekerja " + agree.HR_PEKERJA);                     
                     break;
                 default:
                     break;
